@@ -14,11 +14,10 @@ return new class extends Migration
         Schema::create('battles', function (Blueprint $table) {
             $table->id();
             $table->bigInteger('battle_id')->unique();
-            $table->foreignId('player_id')->constrained('players')->onDelete('cascade');
             $table->timestamp('battle_date');
             $table->integer('duration');
             $table->string('map_name', 255);
-            $table->boolean('victory');
+            $table->enum('battle_type', ['Random', 'Ranked', 'Co-Op', 'Clan', 'Operation'])->default('Random');
             $table->timestamps();
         });
     }

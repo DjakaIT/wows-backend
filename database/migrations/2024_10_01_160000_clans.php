@@ -11,15 +11,14 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('clan', function (Blueprint $table) {
+        Schema::create('clans', function (Blueprint $table) {
             $table->id();
             $table->bigInteger('clan_id')->unique();
             $table->string('name', 255);
             $table->string('tag', 15);
             $table->foreignId('creator')->constrained('players')->onDelete('cascade');
             $table->foreignId('leader')->constrained('players')->onDelete('cascade');
-            /*             $table->foreignId(column: 'serverId')->constrained('servers')->onDelete('cascade');
- */
+            $table->enum('server', ['EU, NA, ASIA']);
             $table->timestamps();
         });
     }
@@ -29,6 +28,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('clan');
+        Schema::dropIfExists('clans');
     }
 };
