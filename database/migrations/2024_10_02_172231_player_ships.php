@@ -19,7 +19,7 @@ return new class extends Migration
             $table->integer('wins_count');
             $table->bigInteger('damage_dealt');
             $table->bigInteger('average_damage');
-            $table->integer('kill_count');
+            $table->integer('frags');
             $table->float('survival_rate');
             $table->timestamps();
         });

@@ -11,20 +11,20 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('achievements', function (Blueprint $table) {
+        Schema::create('clan', function (Blueprint $table) {
             $table->id();
-            $table->string('achievement_name', 255);
-            $table->text('description')->nullable();
-            $table->timestamps();
+            $table->string('name', 255);
+            $table->string('tag', 255);
+            $table->foreignId('creator')->constrained('players')->onDelete('cascade');
+            $table->foreignId('leader')->constrained('players')->onDelete('cascade');
         });
     }
 
     /**
      * Reverse the migrations.
      */
-
     public function down(): void
     {
-        Schema::dropIfExists('achievements');
+        Schema::dropIfExists('clan');
     }
 };
