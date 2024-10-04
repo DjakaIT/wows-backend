@@ -20,6 +20,7 @@ return new class extends Migration
             $table->integer('players_kills');
             $table->float('avg_xp');
             $table->float('win_rate');
+            $table->bigInteger('wn8');
             $table->timestamps();
         });
     }
