@@ -17,8 +17,7 @@ return new class extends Migration
             $table->string('nickname', 255);
             $table->BigInteger('account_id')->unique();
             $table->enum('server', ['NA', 'EU', 'ASIA']);
-            /*             $table->foreignId('clan_id')->nullable()->constrained('clans')->onDelete('set null');
- */
+            $table->foreignId('clan_id')->nullable()->constrained('clans')->onDelete('set null');
             $table->timestamps();
         });
     }
