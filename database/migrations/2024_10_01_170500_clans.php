@@ -18,7 +18,7 @@ return new class extends Migration
             $table->string('tag', 15);
             /* $table->foreignId('creator')->constrained('players')->onDelete('cascade');
             $table->foreignId('leader')->constrained('players')->onDelete('cascade'); */
-            $table->enum('server', ['EU, NA, ASIA']);
+            $table->enum('server', ['EU', 'NA', 'ASIA']);
             $table->timestamps();
         });
     }
