@@ -16,4 +16,17 @@ class Battle extends Model
         'map_name',
         'battle_type'
     ];
+
+
+    public function players()
+    {
+        return $this->belongsToMany(Player::class, 'battle_participants');
+    }
+
+
+    //filter battles by result
+    public function scopeByResult($query, $result)
+    {
+        return $query->where('result', $result);
+    }
 }
