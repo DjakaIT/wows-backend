@@ -8,4 +8,11 @@ use Illuminate\Database\Eloquent\Model;
 class Player extends Model
 {
     use HasFactory;
+
+    protected $filable = [
+        'nickname',
+        'server',
+        'account_id',
+        'clan_id'
+    ];
 }
