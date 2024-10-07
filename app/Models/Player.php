@@ -22,4 +22,23 @@ class Player extends Model
     {
         return $this->BelongsTo(Clan::class);
     }
+
+    public function achievements()
+    {
+        return $this->belongsToMany(Achievement::class, 'player_achievements');
+    }
+
+    public function battles()
+    {
+        return $this->belongsToMany(Battle::class, 'battle_participants');
+    }
+
+
+
+    //filter players by server
+
+    public function scopeByServer($query, $server)
+    {
+        return $query->where('server', $server);
+    }
 }

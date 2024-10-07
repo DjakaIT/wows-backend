@@ -22,4 +22,9 @@ class Clan extends Model
     {
         return $this->hasMany(Player::class);
     }
+
+    public function battles()
+    {
+        return $this->hasMany(Battle::class);
+    }
 }
