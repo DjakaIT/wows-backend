@@ -8,4 +8,18 @@ use Illuminate\Database\Eloquent\Model;
 class Clan extends Model
 {
     use HasFactory;
+
+
+    protected $fillable = [
+        'name',
+        'tag',
+        'server',
+        'clan_id'
+    ];
+
+    //defines a OneToMany relationship with players table in the db
+    public function players()
+    {
+        return $this->hasMany(Player::class);
+    }
 }

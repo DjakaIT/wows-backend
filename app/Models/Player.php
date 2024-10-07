@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Player extends Model
 {
@@ -15,4 +16,10 @@ class Player extends Model
         'account_id',
         'clan_id'
     ];
+
+    //defines the relationship with Clan table
+    public function clan()
+    {
+        return $this->BelongsTo(Clan::class);
+    }
 }
