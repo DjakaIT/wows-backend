@@ -23,4 +23,14 @@ class ClanMember extends Model
     {
         return $this->belongsTo(Player::class, 'player_id');
     }
+
+    public function clan()
+    {
+        return $this->belongsTo(Clan::class, 'clans_id');
+    }
+
+    public function scopeByActive($query)
+    {
+        return $query->whereNull('left_at');
+    }
 }

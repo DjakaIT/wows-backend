@@ -8,4 +8,15 @@ use Illuminate\Database\Eloquent\Model;
 class Achievement extends Model
 {
     use HasFactory;
+
+    protected $fillable = [
+        'name',
+        'description',
+        'points'
+    ];
+
+    public function players()
+    {
+        return $this->belongsToMany(Player::class, 'player_achievements');
+    }
 }
