@@ -11,8 +11,7 @@ class Achievement extends Model
 
     protected $fillable = [
         'name',
-        'description',
-        'points'
+        'description'
     ];
 
     public function players()
