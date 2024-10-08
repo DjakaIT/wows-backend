@@ -45,4 +45,10 @@ class PlayerStatistic extends Model
     {
         return $this->battles_played->count();
     }
+
+
+    public function scopeTopByWnScore($query, $limit = 15)
+    {
+        return $query->orderByDesc('wn8')->limit($limit);
+    }
 }
