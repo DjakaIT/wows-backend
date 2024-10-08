@@ -14,7 +14,7 @@ class PlayerShip extends Model
 
         'player_id',
         'ship_id',
-        'battles_count',
+        'battles_played',
         'wins_count',
         'damage_dealt',
         'average_damage',
@@ -31,5 +31,15 @@ class PlayerShip extends Model
     public function ship()
     {
         return $this->belongsTo(Ship::class);
+    }
+
+
+    public function averageDamage()
+    {
+        return $this->battles_played > 0 ? round($this->damage_dealt / $this->battles_played) : 0;
+    }
+    public function totalBattles()
+    {
+        return $this->battles_played->count();
     }
 }

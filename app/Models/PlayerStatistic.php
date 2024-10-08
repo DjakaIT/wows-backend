@@ -39,4 +39,10 @@ class PlayerStatistic extends Model
     {
         return $this->battles_played > 0 ? round($this->damage_dealt / $this->battles_played) : 0;
     }
+
+    //pull number of total battles played
+    public function totalBattles()
+    {
+        return $this->battles_played->count();
+    }
 }

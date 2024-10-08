@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('player_id')->constrained('players')->onDelete('cascade');
             $table->foreignId('ship_id')->constrained('ships')->onDelete('cascade');
-            $table->integer('battles_count');
+            $table->integer('battles_played');
             $table->integer('wins_count');
             $table->bigInteger('damage_dealt');
             $table->bigInteger('average_damage');
