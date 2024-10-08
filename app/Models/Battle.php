@@ -29,4 +29,22 @@ class Battle extends Model
     {
         return $query->where('result', $result);
     }
+
+    public function scopeByType($query, $type)
+    {
+        return $query->where('battle_type', $type);
+    }
+
+    public function scopeByMap($query, $map)
+    {
+        return $query->where('map_name', $map);
+    }
+
+    public function getMVP()
+    {
+        return $this->battle_participants()
+            ->orderBy('xp_earned', 'desc')
+            ->first()
+            ->player;
+    }
 }

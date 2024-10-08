@@ -29,4 +29,14 @@ class Ship extends Model
     {
         return $this->hasMany(BattleParticipant::class);
     }
+
+    public function scopeByTier($query, $tier)
+    {
+        return $query->where('tier', $tier);
+    }
+
+    public function scopeByNation($query, $nation)
+    {
+        return $query->where('nation', $nation);
+    }
 }
