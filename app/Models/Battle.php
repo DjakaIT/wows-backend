@@ -40,11 +40,5 @@ class Battle extends Model
         return $query->where('map_name', $map);
     }
 
-    public function getMVP()
-    {
-        return $this->battle_participants()
-            ->orderBy('xp_earned', 'desc')
-            ->first()
-            ->player;
-    }
+    public function getMVP() {}
 }
