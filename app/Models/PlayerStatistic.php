@@ -30,7 +30,7 @@ class PlayerStatistic extends Model
 
     public function winRate()
     {
-        return $this->battles_played > 0 ? ($this->wins / $this->battlles_played) * 100 : 0;
+        return $this->battles_played > 0 ? ($this->wins / $this->battles_played) * 100 : 0;
     }
 
     //method to calculate avg damage
@@ -40,11 +40,7 @@ class PlayerStatistic extends Model
         return $this->battles_played > 0 ? round($this->damage_dealt / $this->battles_played) : 0;
     }
 
-    //pull number of total battles played
-    public function totalBattles()
-    {
-        return $this->battles_played->count();
-    }
+
 
 
     public function scopeTopByWnScore($query, $limit = 15)
