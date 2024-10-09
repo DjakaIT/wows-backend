@@ -35,6 +35,9 @@ class ClanController extends Controller
 
     public function update(Request $request, $id)
     {
+
+        $clan = Clan::findOrFail($id);
+
         $validateUpdatedClanData = ([
             'name' => 'required|string|max:255',
             'tag' => 'required|string|max:15',
@@ -42,12 +45,13 @@ class ClanController extends Controller
             'clan_id' => 'required|integer|unique|clan, clan_id' . $id
         ]);
 
-        $clan->($validateUpdatedClanData);
+        $clan->update($validateUpdatedClanData);
         return response()->json($clan);
     }
 
 
-    public function destroy($id){
+    public function destroy($id)
+    {
         $clan = Clan::findOrFail($id);
         $clan->delete();
         return response()->json(['message' => 'Clan succesfully deleted from records']);
