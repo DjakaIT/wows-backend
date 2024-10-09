@@ -22,6 +22,7 @@ class PlayerController extends Controller
         return response()->json($player);
     }
 
+    //save a player
     public function store(Request $request)
     {
         $validatedNewData = $request->validate([
@@ -34,5 +35,32 @@ class PlayerController extends Controller
 
         $player = Player::create($validatedNewData);
         return response()->json($player, 201);
+    }
+
+    //update specific player's details
+    public function update(Request $request, $id)
+    {
+        $player = Player::findOrFail($id);
+
+        $validatedUpdateData = $request->validate([
+            'nickname' => 'required|string|max:255',
+            'server' => 'required|string|in:EU,NA,ASIA',
+            'account_id' => 'required|integer|unique:players,account_id' . $id,
+            'clan_id' => 'nullable|exists:clans,id',
+        ]);
+
+        $player->update($validatedUpdateData);
+
+        return response()->json($player);
+    }
+
+    //delete a player
+
+    public function destroy($id)
+    {
+        $player = Player::findOrFail($id);
+        $player->delete();
+
+        return response()->json(['message' => 'Player deleted succesfully from records.']);
     }
 }
