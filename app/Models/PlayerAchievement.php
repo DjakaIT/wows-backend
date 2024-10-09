@@ -15,6 +15,10 @@ class PlayerAchievement extends Model
         'date_earned'
     ];
 
+    protected $casts = [
+        'date_earned' => 'datetime'
+    ];
+
     public function playerAchievements()
     {
         return $this->belongsToMany(Achievement::class, 'player_achievements');
