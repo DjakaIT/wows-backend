@@ -31,7 +31,7 @@ class ShipController extends Controller
             'tier' => 'required|integer',
             'type' => 'required|integer',
             'nation' => 'required|string|max:80',
-            'ship_id' => 'required|unique:ships, ship_id'
+            'ship_id' => 'required|integer|unique:ships, ship_id'
         ]);
 
         $ship = Ship::create($validatedShipData);
