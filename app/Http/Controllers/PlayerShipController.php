@@ -4,64 +4,118 @@ namespace App\Http\Controllers;
 
 use App\Models\PlayerShip;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
 
 class PlayerShipController extends Controller
 {
-
+    /**
+     * Display a listing of the resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
     public function index()
     {
-        $playerShip = PlayerShip::all();
-        return response()->json($playerShip);
+        $playerShips = PlayerShip::with(['player', 'ship'])->paginate(15);
+        return response()->json($playerShips);
     }
 
-    public function show($id)
-    {
-        $playerShip = PlayerShip::findOrFail($id);
-        return response()->json($playerShip);
-    }
-
+    /**
+     * Store a newly created resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
     public function store(Request $request)
     {
-        $validatedNewStatData = $request->validate([
+        $validator = Validator::make($request->all(), [
             'player_id' => 'required|exists:players,id',
+            'ship_id' => 'required|exists:ships,id',
             'battles_played' => 'required|integer',
-            'wins' => 'required|integer',
+            'wins_count' => 'required|integer',
             'damage_dealt' => 'required|integer',
-            'avg_xp' => 'required|integer',
-            'win_rate' => 'required|numeric',
-            'wn8' => 'required|numeric',
+            'frags' => 'required|integer',
+            'survival_rate' => 'required|numeric|between:0,100',
         ]);
 
+        if ($validator->fails()) {
+            return response()->json($validator->errors(), 400);
+        }
 
-        $playerShip = PlayerShip::create($validatedNewStatData);
+        $playerShip = PlayerShip::create($request->all());
+        $playerShip->average_damage = $playerShip->averageDamage();
+        $playerShip->save();
+
         return response()->json($playerShip, 201);
     }
 
-    public function update(Request $request, $id)
+    /**
+     * Display the specified resource.
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function show($id)
     {
+        $playerShip = PlayerShip::with(['player', 'ship'])->find($id);
 
-        $playerShip = PlayerShip::findOrFail($id);
+        if (!$playerShip) {
+            return response()->json(['message' => 'Player Ship not found'], 404);
+        }
 
-        $validatedUpdatedStatData = $request->validate([
-            'player_id' => 'required|exists:players,id',
-            'battles_played' => 'required|integer',
-            'wins' => 'required|integer',
-            'damage_dealt' => 'required|integer',
-            'avg_xp' => 'required|integer',
-            'win_rate' => 'required|numeric',
-            'wn8' => 'required|numeric',
-        ]);
-
-
-        $playerShip->update($validatedUpdatedStatData);
         return response()->json($playerShip);
     }
 
+    /**
+     * Update the specified resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function update(Request $request, $id)
+    {
+        $playerShip = PlayerShip::find($id);
+
+        if (!$playerShip) {
+            return response()->json(['message' => 'Player Ship not found'], 404);
+        }
+
+        $validator = Validator::make($request->all(), [
+            'player_id' => 'exists:players,id',
+            'ship_id' => 'exists:ships,id',
+            'battles_played' => 'integer',
+            'wins_count' => 'integer',
+            'damage_dealt' => 'integer',
+            'frags' => 'integer',
+            'survival_rate' => 'numeric|between:0,100',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json($validator->errors(), 400);
+        }
+
+        $playerShip->update($request->all());
+        $playerShip->average_damage = $playerShip->averageDamage();
+        $playerShip->save();
+
+        return response()->json($playerShip);
+    }
+
+    /**
+     * Remove the specified resource from storage.
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
     public function destroy($id)
     {
-        $playerShip = PlayerShip::findOrFail($id);
-        $playerShip->delete();
+        $playerShip = PlayerShip::find($id);
 
-        return response()->json(['message' => "Player's stats deleted succesfully from records."]);
+        if (!$playerShip) {
+            return response()->json(['message' => 'Player Ship not found'], 404);
+        }
+
+        $playerShip->delete();
+        return response()->json(['message' => 'Player Ship deleted successfully']);
     }
 }
