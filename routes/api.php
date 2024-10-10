@@ -45,3 +45,13 @@ Route::prefix('battles')->group(function () {
     Route::put('/{id}', [BattleController::class, 'update']);
     Route::delete('/{id}', [BattleController::class, 'destroy']);
 });
+
+
+
+Route::prefix('achievements')->group(function () {
+    Route::get('/', [AchievementController::class, 'index']);
+    Route::get('/{id}', [AchievementController::class, 'show']);
+    Route::post('/', [AchievementController::class, 'store']);
+    Route::put('/{id}', [AchievementController::class, 'update']);
+    Route::delete('/{id}', [AchievementController::class, 'destroy']);
+});
