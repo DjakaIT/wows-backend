@@ -50,7 +50,7 @@ class BattleParticipantController extends Controller
             'duration' => 'required|integer',
             'team' => 'required|in:A,B',
             'victory' => 'required|boolean',
-            'damage_dealt' => 'required|',
+            'damage_dealt' => 'required|integer',
             'frags' => 'required|integer',
             'xp_earned' => 'required|float'
         ]);
