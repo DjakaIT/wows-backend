@@ -21,7 +21,17 @@ class BattleParticipantController extends Controller
 
     public function store(Request $request)
     {
-        $validatedNewData = $request->validate([]);
+        $validatedNewData = $request->validate([
+            'player_id' => 'required|integer|unique:players, player_id',
+            'battle_id' => 'required|integer|unique:battles,battle_id',
+            'ship_id' => 'required|integer|unique:ships,ship_id',
+            'duration' => 'required|integer',
+            'team' => 'required|in:A,B',
+            'victory' => 'required|boolean',
+            'damage_dealt' => 'required|',
+            'frags' => 'required|integer',
+            'xp_earned' => 'required|float'
+        ]);
 
 
         $battleParticipant = BattleParticipant::create($validatedNewData);
@@ -33,7 +43,17 @@ class BattleParticipantController extends Controller
 
         $battleParticipant = BattleParticipant::findOrFail($id);
 
-        $validatedUpdateData = $request->validate([]);
+        $validatedUpdateData = $request->validate([
+            'player_id' => 'required|integer|unique:players, player_id',
+            'battle_id' => 'required|integer|unique:battles,battle_id',
+            'ship_id' => 'required|integer|unique:ships,ship_id',
+            'duration' => 'required|integer',
+            'team' => 'required|in:A,B',
+            'victory' => 'required|boolean',
+            'damage_dealt' => 'required|',
+            'frags' => 'required|integer',
+            'xp_earned' => 'required|float'
+        ]);
 
 
         $battleParticipant->update($validatedUpdateData);
