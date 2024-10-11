@@ -60,3 +60,49 @@ Route::prefix('achievements')->group(function () {
     Route::put('/{id}', [AchievementController::class, 'update']);
     Route::delete('/{id}', [AchievementController::class, 'destroy']);
 });
+
+Route::prefix('player-achievements')->group(function () {
+    Route::get('/', [PlayerAchievementController::class, 'index']);
+    Route::get('/{id}', [PlayerAchievementController::class, 'show']);
+    Route::post('/', [PlayerAchievementController::class, 'store']);
+    Route::put('/{id}', [PlayerAchievementController::class, 'update']);
+    Route::delete('/{id}', [PlayerAchievementController::class, 'destroy']);
+});
+
+
+Route::prefix('player-statistics')->group(function () {
+    Route::get('/', [PlayerStatisticController::class, 'index']);
+    Route::get('/{id}', [PlayerStatisticController::class, 'show']);
+    Route::post('/', [PlayerStatisticController::class, 'store']);
+    Route::put('/{id}', [PlayerStatisticController::class, 'update']);
+    Route::delete('/{id}', [PlayerStatisticController::class, 'destroy']);
+});
+
+
+
+Route::prefix('player-ships')->group(function () {
+    Route::get('/', [PlayerShipController::class, 'index']);
+    Route::get('/{id}', [PlayerShipController::class, 'show']);
+    Route::post('/', [PlayerShipController::class, 'store']);
+    Route::put('/{id}', [PlayerShipController::class, 'update']);
+    Route::delete('/{id}', [PlayerShipController::class, 'destroy']);
+});
+
+
+Route::prefix('clan-members')->group(function () {
+    Route::get('/', [ClanMemberController::class, 'index']);
+    Route::get('/{id}', [ClanMemberController::class, 'show']);
+    Route::post('/', [ClanMemberController::class, 'store']);
+    Route::put('/{id}', [ClanMemberController::class, 'update']);
+    Route::delete('/{id}', [ClanMemberController::class, 'destroy']);
+});
+
+
+
+Route::prefix('battle-participants')->group(function () {
+    Route::get('/', [BattleParticipantController::class, 'index']);
+    Route::get('/{id}', [BattleParticipantController::class, 'show']);
+    Route::post('/', [BattleParticipantController::class, 'store']);
+    Route::put('/{id}', [BattleParticipantController::class, 'update']);
+    Route::delete('/{id}', [BattleParticipantController::class, 'destroy']);
+});
