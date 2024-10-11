@@ -22,7 +22,7 @@ Route::prefix('players')->group(function () {
     Route::post('/', [PlayerController::class, 'store']);
     Route::put('/{id}', [PlayerController::class, 'update']);
     Route::delete('/{id}', [PlayerController::class, 'destroy']);
-});
+})->middleware('auth:sanctum');
 
 Route::prefix('ships')->group(function () {
     Route::get('/', [ShipController::class, 'index']);
