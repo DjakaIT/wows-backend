@@ -2,11 +2,16 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\PlayerController;
-use App\Http\Controllers\UserController;
 use App\Http\Controllers\ClanController;
 use App\Http\Controllers\BattleController;
 use App\Http\Controllers\AchievementController;
 use App\Http\Controllers\ShipController;
+use App\Http\Controllers\BattleParticipantController;
+use App\Http\Controllers\PlayerShipController;
+use App\Http\Controllers\PlayerAchievementController;
+use App\Http\Controllers\PlayerStatisticController;
+use App\Http\Controllers\ClanMemberController;
+
 
 
 //routes for players
