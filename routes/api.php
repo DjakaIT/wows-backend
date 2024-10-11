@@ -11,8 +11,7 @@ use App\Http\Controllers\PlayerShipController;
 use App\Http\Controllers\PlayerAchievementController;
 use App\Http\Controllers\PlayerStatisticController;
 use App\Http\Controllers\ClanMemberController;
-
-
+use App\Http\Controllers\UserController;
 
 //routes for players
 Route::prefix('players')->group(function () {
@@ -106,3 +105,11 @@ Route::prefix('battle-participants')->group(function () {
     Route::put('/{id}', [BattleParticipantController::class, 'update']);
     Route::delete('/{id}', [BattleParticipantController::class, 'destroy']);
 });
+
+Route::prefix('users')->group(function () {
+    Route::get('/', [UserController::class, 'index']);
+    Route::get('/{id}', [UserController::class, 'show']);
+    Route::post('/', [UserController::class, 'store']);
+    Route::put('/{id}', [UserController::class, 'update']);
+    Route::delete('/{id}', [UserController::class, 'destroy']);
+})->middleware('auth:sanctum');
