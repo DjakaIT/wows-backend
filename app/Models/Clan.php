@@ -27,4 +27,9 @@ class Clan extends Model
     {
         return $this->hasMany(Battle::class);
     }
+
+    public function scopeByServer($query, $server)
+    {
+        return $query->where('server', $server);
+    }
 }
