@@ -2,7 +2,8 @@
     <div>
         <header>
             <nav>
-                <a htef="/''">Home</a>
+                <Link href="/">Home</Link>
+                <Link href="/wiki">Wiki</Link>
             </nav>
         </header>
     </div>
@@ -11,3 +12,7 @@
         <slot />
     </main>
 </template>
+
+<script setup>
+import { Link } from '@inertiajs/vue3';
+</script>

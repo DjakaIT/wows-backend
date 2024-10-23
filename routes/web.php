@@ -8,3 +8,7 @@ Route::get('/', function () {
         'user' => 'Kralj Tomislav'
     ]);
 });
+
+Route::get('/wiki', function () {
+    return Inertia::render('Wiki');
+});
