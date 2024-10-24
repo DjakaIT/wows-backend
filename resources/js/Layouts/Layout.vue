@@ -4,6 +4,7 @@
             <nav>
                 <Link href="/">Home</Link>
                 <Link href="/wiki">Wiki</Link>
+                <Link href="/wiki">Wiki</Link>
             </nav>
         </header>
     </div>
