@@ -35,6 +35,7 @@ Route::prefix('ships')->group(function () {
 Route::prefix('clans')->group(function () {
     Route::get('/', [ClanController::class, 'index']);
     Route::get('/{id}', [ClanController::class, 'show']);
+    Route::post('/fetch', [ClanController::class, 'fetchAndStoreClans']);
     Route::post('/', [ClanController::class, 'store']);
     Route::put('/{id}', [ClanController::class, 'update']);
     Route::delete('/{id}', [ClanController::class, 'destroy']);

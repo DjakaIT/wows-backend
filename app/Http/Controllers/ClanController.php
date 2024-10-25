@@ -4,56 +4,40 @@ namespace App\Http\Controllers;
 
 use App\Models\Clan;
 use Illuminate\Http\Request;
+use App\Services\WowsApiService;
+use Illuminate\Support\Facades\Log;
 
 class ClanController extends Controller
 {
-    public function index()
+    protected $wowsApiService;
+
+    public function __construct(WowsApiService $wowsApiService)
     {
-        $clans = Clan::all();
-        return response()->json($clans);
+        $this->wowsApiService = $wowsApiService;
     }
 
-    public function showClan($id)
-
+    public function fetchAndStoreClans(Request $request)
     {
-        $clan = Clan::findOrFail($id);
-        return response()->json($clan);
-    }
+        Log::info("Reached fetchAndStoreClans method");
 
-    public function store(Request $request)
-    {
-        $validateClanData = ([
-            'name' => 'required|string|max:255',
-            'tag' => 'required|string|max:15',
-            'server' => 'required|string|in:EU,NA,ASIA',
-            'clan_id' => 'required|integer|unique|clan, clan_id'
-        ]);
+        $clanTag = $request->input('clan_tag');
+        $clans = $this->wowsApiService->getClans($clanTag);
 
-        $clan = Clan::create($validateClanData);
-        return response()->json($clan, 201);
-    }
+        if ($clans && isset($clans['data'])) {
+            foreach ($clans['data'] as $clanData) {
+                Clan::updateOrCreate(
+                    ['clan_id' => $clanData['clan_id']],
+                    [
+                        'name' => $clanData['name'],
+                        'tag' => $clanData['tag'],
+                        'server' => 'EU'
+                    ]
+                );
+            }
 
-    public function update(Request $request, $id)
-    {
+            return response()->json(['message' => 'Clans fetched and stored successfully'], 201);
+        }
 
-        $clan = Clan::findOrFail($id);
-
-        $validateUpdatedClanData = ([
-            'name' => 'required|string|max:255',
-            'tag' => 'required|string|max:15',
-            'server' => 'required|string|in:EU,NA,ASIA',
-            'clan_id' => 'required|integer|unique|clan, clan_id' . $id
-        ]);
-
-        $clan->update($validateUpdatedClanData);
-        return response()->json($clan);
-    }
-
-
-    public function destroy($id)
-    {
-        $clan = Clan::findOrFail($id);
-        $clan->delete();
-        return response()->json(['message' => 'Clan succesfully deleted from records']);
+        return response()->json(['message' => 'Failed to fetch clans'], 400);
     }
 }
