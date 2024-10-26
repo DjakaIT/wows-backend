@@ -14,13 +14,15 @@ class WowsApiService
         $this->apiKey = config('services.wargaming.api_key');
     }
 
-    public function getClans($clanTag)
+    public function getClans($server, $page = 1, $limit = 100)
     {
         $url = "https://api.worldofwarships.eu/wows/clans/list/";
 
         try {
             $response = Http::get($url, [
                 'application_id' => $this->apiKey,
+                'page_no' => $page,
+                'limit' => $limit,
             ]);
 
             if ($response->failed()) {

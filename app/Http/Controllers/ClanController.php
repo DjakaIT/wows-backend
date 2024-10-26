@@ -20,24 +20,36 @@ class ClanController extends Controller
     {
         Log::info("Reached fetchAndStoreClans method");
 
-        $clanTag = $request->input('clan_tag');
-        $clans = $this->wowsApiService->getClans($clanTag);
+        $servers = ['eu', 'na', 'asia'];  // Servers to loop through
+        $limit = 100;
+        foreach ($servers as $server) {
+            $page = 1;
+            $hasMore = true;
 
-        if ($clans && isset($clans['data'])) {
-            foreach ($clans['data'] as $clanData) {
-                Clan::updateOrCreate(
-                    ['clan_id' => $clanData['clan_id']],
-                    [
-                        'name' => $clanData['name'],
-                        'tag' => $clanData['tag'],
-                        'server' => 'EU'
-                    ]
-                );
+            while ($hasMore) {
+                $clans = $this->wowsApiService->getClans($server, $page, $limit);
+
+                if ($clans && isset($clans['data'])) {
+                    foreach ($clans['data'] as $clanData) {
+                        Clan::updateOrCreate(
+                            ['clan_id' => $clanData['clan_id']],
+                            [
+                                'name' => $clanData['name'],
+                                'tag' => $clanData['tag'],
+                                'server' => strtoupper($server),
+                            ]
+                        );
+                        Log::info("Stored clan with ID: " . $clanData['clan_id'] . " on server: " . strtoupper($server));
+                    }
+
+                    $page++;
+                    $hasMore = count($clans['data']) === $limit;
+                } else {
+                    $hasMore = false;
+                }
             }
-
-            return response()->json(['message' => 'Clans fetched and stored successfully'], 201);
         }
 
-        return response()->json(['message' => 'Failed to fetch clans'], 400);
+        return response()->json(['message' => 'Clans fetched and stored successfully'], 201);
     }
 }
