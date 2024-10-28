@@ -4,30 +4,30 @@ namespace App\Http\Controllers;
 
 use App\Models\Clan;
 use Illuminate\Http\Request;
-use App\Services\WowsApiService;
+use App\Services\ClanService;
 use Illuminate\Support\Facades\Log;
 
 class ClanController extends Controller
 {
-    protected $wowsApiService;
+    protected $ClanService;
 
-    public function __construct(WowsApiService $wowsApiService)
+    public function __construct(ClanService $clanService)
     {
-        $this->wowsApiService = $wowsApiService;
+        $this->ClanService = $clanService;
     }
 
     public function fetchAndStoreClans(Request $request)
     {
         Log::info("Reached fetchAndStoreClans method");
 
-        $servers = ['eu', 'na', 'asia'];  // Servers to loop through
+        $servers = ['eu', 'na', 'asia'];
         $limit = 100;
         foreach ($servers as $server) {
             $page = 1;
             $hasMore = true;
 
             while ($hasMore) {
-                $clans = $this->wowsApiService->getClans($server, $page, $limit);
+                $clans = $this->ClanService->getClans($server, $page, $limit);
 
                 if ($clans && isset($clans['data'])) {
                     foreach ($clans['data'] as $clanData) {
