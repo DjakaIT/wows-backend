@@ -4,6 +4,7 @@ use Inertia\Inertia;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ClanController;
 use App\Http\Controllers\PlayerController;
+use App\Http\Controllers\ShipController;
 
 Route::get('/', function () {
     return Inertia::render('Home', [
@@ -34,4 +35,16 @@ Route::prefix('players')->group(function () {
     Route::post('/', [PlayerController::class, 'store']);
     Route::put('/{id}', [PlayerController::class, 'update']);
     Route::delete('/{id}', [PlayerController::class, 'destroy']);
+});
+
+
+
+Route::prefix('ships')->group(function () {
+
+    Route::get('/fetch', [ShipController::class, 'fetchAndStoreShips']);
+    Route::get('/', [ShipController::class, 'index']);
+    Route::get('/{id}', [ShipController::class, 'show']);
+    Route::post('/', [ShipController::class, 'store']);
+    Route::put('/{id}', [ShipController::class, 'update']);
+    Route::delete('/{id}', [ShipController::class, 'destroy']);
 });
