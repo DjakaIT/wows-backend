@@ -44,3 +44,40 @@ Route::get('/wiki/type', function () {
 Route::get('/wiki/vehicle/{vehicle_name}', function () {
     return Inertia::render('WikiVehicle');
 });
+
+Route::get('/FAQ', function () {
+    return Inertia::render('FAQ');
+});
+
+Route::get('/contact', function () {
+    return Inertia::render('Contact');
+});
+
+Route::get('/dashboard', function () {
+    return Inertia::render('Dashboard');
+});
+
+Route::get('/imprint', function () {
+    return Inertia::render('Imprint');
+});
+
+Route::get('/imprint', function () {
+    return Inertia::render('Imprint');
+});
+
+Route::get('/login', function () {
+    return Inertia::render('Login');
+});
+
+Route::get('/notfound', function () {
+    // Proveriti kako se ovde ruta stavlja
+    return Inertia::render('NotFound');
+});
+
+Route::get('/privacy', function () {
+    return Inertia::render('PrivacyPolicy');
+});
+
+Route::get('/rating', function () {
+    return Inertia::render('Rating');
+});
