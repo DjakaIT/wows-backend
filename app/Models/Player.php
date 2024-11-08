@@ -17,6 +17,7 @@ class Player extends Model
         'clan_id'
     ];
 
+
     //defines the relationship with Clan table
     public function clan()
     {

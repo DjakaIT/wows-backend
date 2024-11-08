@@ -17,7 +17,7 @@ class ShipService
     public function getShips($page = 1, $limit = 100)
     {
 
-        $url = "https://api.worldofwarships.eu/wows/encyclopedia/ships/?application_id=a1475a1b88177cf974be1eb48af3d4a8";
+        $url = "https://api.worldofwarships.eu/wows/encyclopedia/ships/?application_id={$this->apiKey}";
 
 
         try {

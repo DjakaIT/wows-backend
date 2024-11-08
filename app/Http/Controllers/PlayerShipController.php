@@ -3,15 +3,28 @@
 namespace App\Http\Controllers;
 
 use App\Models\PlayerShip;
+use App\Services\PlayerShipService;
 use Illuminate\Http\Request;
 
 class PlayerShipController extends Controller
 {
+    protected $playerShipService;
+
+    public function __construct(PlayerShipService $playerShipService)
+    {
+        $this->playerShipService = $playerShipService;
+    }
+
+    public function updatePlayerShips()
+    {
+        $this->playerShipService->fetchAndStorePlayerShips();
+        return response()->json(['message' => 'Player ship statistics fetched and stored successfully.']);
+    }
 
     public function index()
     {
-        $playerShip = PlayerShip::all();
-        return response()->json($playerShip);
+        $playerShips = PlayerShip::all();
+        return response()->json($playerShips);
     }
 
     public function show($id)
@@ -33,14 +46,12 @@ class PlayerShipController extends Controller
             'survival_rate' => 'required|float'
         ]);
 
-
         $playerShip = PlayerShip::create($validatedNewStatData);
         return response()->json($playerShip, 201);
     }
 
     public function update(Request $request, $id)
     {
-
         $playerShip = PlayerShip::findOrFail($id);
 
         $validatedUpdatedStatData = $request->validate([
@@ -53,7 +64,6 @@ class PlayerShipController extends Controller
             'frags' => 'required|integer',
             'survival_rate' => 'required|float'
         ]);
-
 
         $playerShip->update($validatedUpdatedStatData);
         return response()->json($playerShip);

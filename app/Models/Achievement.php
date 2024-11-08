@@ -10,8 +10,15 @@ class Achievement extends Model
     use HasFactory;
 
     protected $fillable = [
-        'name',
-        'description'
+        'achievement_id',
+        'achievement_name',
+        'description',
+        'image',
+        'image_inactive',
+        'type',
+        'sub_type',
+        'max_progress',
+        'is_progress'
     ];
 
     public function players()

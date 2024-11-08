@@ -26,6 +26,11 @@ class PlayerController extends Controller
 
             foreach (range('a', 'z') as $secondLetter) {
                 $terms[] = $letter . $secondLetter;
+
+
+                foreach (range('a', 'z') as $thirdLetter) {
+                    $terms[] = $letter . $secondLetter . $thirdLetter;
+                }
             }
         }
         return $terms;
@@ -36,49 +41,34 @@ class PlayerController extends Controller
         Log::info("Reached fetchAndStorePlayers");
 
         $servers = ['eu', 'na', 'asia'];
-        $limit = 100;
-
-        // Generating three-letter combinations from 'aaa' to 'zzz'
-        $searchTerms = [];
-        foreach (range('a', 'z') as $first) {
-            foreach (range('a', 'z') as $second) {
-                foreach (range('a', 'z') as $third) {
-                    $searchTerms[] = $first . $second . $third;
-                }
-            }
-        }
+        $searchTerms = $this->generateSearchTerms();
 
         foreach ($servers as $server) {
             foreach ($searchTerms as $search) {
-                $page = 1;
-                $hasMore = true;
+                // Fetch and store players for each search term
+                $players = $this->PlayerService->getAllPlayers($server, $search);
 
-                while ($hasMore) {
-                    $players = $this->PlayerService->getPlayers($server, $page, $limit, $search);
-
-                    if ($players && isset($players['data'])) {
-                        foreach ($players['data'] as $playerData) {
-                            Player::updateOrCreate(
-                                ['account_id' => $playerData['account_id']],
-                                [
-                                    'nickname' => $playerData['nickname'],
-                                    'server' => strtoupper($server),
-                                ]
-                            );
-                            Log::info("Stored player with ID: " . $playerData['account_id'] . " on server: " . strtoupper($server));
-                        }
-
-                        $page++;
-                        $hasMore = count($players['data']) === $limit;
-                    } else {
-                        $hasMore = false;
+                if ($players) {
+                    foreach ($players as $playerData) {
+                        Player::updateOrCreate(
+                            ['account_id' => $playerData['account_id']],
+                            [
+                                'nickname' => $playerData['nickname'],
+                                'server' => strtoupper($server),
+                            ]
+                        );
+                        Log::info("Stored player with ID: " . $playerData['account_id'] . " on server: " . strtoupper($server));
                     }
                 }
+
+                // Introduce a short delay to respect API rate limits
+                usleep(500000); // 0.5 seconds
             }
         }
 
-        return response()->json(['message' => 'Players fetched and stored in database successfully'], 201);
+        return response()->json(['message' => 'All players fetched and stored in database successfully'], 201);
     }
+
 
     public function index()
     {
