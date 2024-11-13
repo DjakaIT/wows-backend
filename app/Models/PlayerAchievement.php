@@ -11,8 +11,10 @@ class PlayerAchievement extends Model
 
     protected $fillable = [
         'account_id',
-        'battle_achievement',
-        'progress_achievement'
+        'achievement_id',
+        'achievement_name',
+        'achievement_type',
+        'achievement_count'
     ];
 
 

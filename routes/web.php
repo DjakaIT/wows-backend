@@ -7,6 +7,7 @@ use App\Http\Controllers\PlayerController;
 use App\Http\Controllers\ShipController;
 use App\Http\Controllers\ClanMemberController;
 use App\Http\Controllers\AchievementController;
+use App\Http\Controllers\PlayerAchievementController;
 use App\Http\Controllers\PlayerShipController;
 
 Route::get('/', function () {
@@ -71,6 +72,16 @@ Route::prefix('achievements')->group(function () {
     Route::post('/', [AchievementController::class, 'store']);
     Route::put('/{id}', [AchievementController::class, 'update']);
     Route::delete('/{id}', [AchievementController::class, 'destroy']);
+});
+
+Route::prefix('player-achievements')->group(function () {
+
+    Route::get('/fetch', [PlayerAchievementController::class, 'storePlayerAchievements']);
+    Route::get('/', [PlayerAchievementController::class, 'index']);
+    Route::get('/{id}', [PlayerAchievementController::class, 'show']);
+    Route::post('/', [PlayerAchievementController::class, 'store']);
+    Route::put('/{id}', [PlayerAchievementController::class, 'update']);
+    Route::delete('/{id}', [PlayerAchievementController::class, 'destroy']);
 });
 
 
