@@ -9,6 +9,7 @@ use App\Http\Controllers\ClanMemberController;
 use App\Http\Controllers\AchievementController;
 use App\Http\Controllers\PlayerAchievementController;
 use App\Http\Controllers\PlayerShipController;
+use App\Http\Controllers\PlayerStatisticController;
 
 Route::get('/', function () {
     return Inertia::render('Home', [
@@ -94,4 +95,15 @@ Route::prefix('player-ships')->group(function () {
     Route::post('/', [PlayerShipController::class, 'store']);
     Route::put('/{id}', [PlayerShipController::class, 'update']);
     Route::delete('/{id}', [PlayerShipController::class, 'destroy']);
+});
+
+
+Route::prefix('player-stats')->group(function () {
+
+    Route::get('/fetch', [PlayerStatisticController::class, 'updatePlayerStats']);
+    Route::get('/', [PlayerStatisticController::class, 'index']);
+    Route::get('/{id}', [PlayerStatisticController::class, 'show']);
+    Route::post('/', [PlayerStatisticController::class, 'store']);
+    Route::put('/{id}', [PlayerStatisticController::class, 'update']);
+    Route::delete('/{id}', [PlayerStatisticController::class, 'destroy']);
 });
