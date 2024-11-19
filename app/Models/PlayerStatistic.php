@@ -10,7 +10,7 @@ class PlayerStatistic extends Model
     use HasFactory;
 
     protected $fillable = [
-        'player_id',
+        'account_id',
         'nickname',
         'private_battle_life_time',
         'private_gold',

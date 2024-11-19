@@ -9,8 +9,6 @@ use Illuminate\Support\Facades\Log;
 
 class PlayerController extends Controller
 {
-    //index method made to display players
-
     protected $PlayerService;
 
     public function __construct(PlayerService $playerService)
@@ -27,7 +25,6 @@ class PlayerController extends Controller
             foreach (range('a', 'z') as $secondLetter) {
                 $terms[] = $letter . $secondLetter;
 
-
                 foreach (range('a', 'z') as $thirdLetter) {
                     $terms[] = $letter . $secondLetter . $thirdLetter;
                 }
@@ -38,90 +35,46 @@ class PlayerController extends Controller
 
     public function fetchAndStorePlayers(Request $request)
     {
-        Log::info("Reached fetchAndStorePlayers");
+        Log::info("Started fetching players");
 
         $servers = ['eu', 'na', 'asia'];
         $searchTerms = $this->generateSearchTerms();
+        $limit = 100;
 
         foreach ($servers as $server) {
             foreach ($searchTerms as $search) {
-                // Fetch and store players for each search term
-                $players = $this->PlayerService->getAllPlayers($server, $search);
+                $page = 1;
+                $hasMore = true;
 
-                if ($players) {
-                    foreach ($players as $playerData) {
-                        Player::updateOrCreate(
-                            ['account_id' => $playerData['account_id']],
-                            [
-                                'nickname' => $playerData['nickname'],
-                                'server' => strtoupper($server),
-                            ]
-                        );
-                        Log::info("Stored player with ID: " . $playerData['account_id'] . " on server: " . strtoupper($server));
+                while ($hasMore) {
+                    $players = $this->PlayerService->getAllPlayers($server, $search, $page, $limit);
+
+                    if ($players) {
+                        foreach ($players as $playerData) {
+                            Player::updateOrCreate(
+                                ['account_id' => $playerData['account_id']],
+                                [
+                                    'nickname' => $playerData['nickname'],
+                                    'server' => strtoupper($server),
+                                ]
+                            );
+                            Log::info("Stored player with ID: " . $playerData['account_id'] . " on server: " . strtoupper($server));
+                        }
+
+                        Log::info("Fetched page {$page} for search term '{$search}' on server: " . strtoupper($server));
+                        $page++;
+                        $hasMore = count($players) === $limit;
+                    } else {
+                        Log::info("No more players found for search term '{$search}' on server: " . strtoupper($server));
+                        $hasMore = false;
                     }
                 }
 
-                // Introduce a short delay to respect API rate limits
+                // Short delay to respect API rate limits
                 usleep(500000); // 0.5 seconds
             }
         }
 
         return response()->json(['message' => 'All players fetched and stored in database successfully'], 201);
-    }
-
-
-    public function index()
-    {
-        $players = Player::all();
-
-        return response()->json($players);
-    }
-
-    public function show($id)
-    {
-        $player = Player::findOrFail($id);
-        return response()->json($player);
-    }
-
-    //save a player
-    public function store(Request $request)
-    {
-        $validatedNewData = $request->validate([
-            'nickname' => 'required|string|max:255',
-            'server' => 'required|string|in:EU,NA,ASIA',
-            'account_id' => 'required|integer|unique:players,account_id',
-            'clan_id' => 'nullable|exists:clans,id',
-        ]);
-
-
-        $player = Player::create($validatedNewData);
-        return response()->json($player, 201);
-    }
-
-    //update specific player's details
-    public function update(Request $request, $id)
-    {
-        $player = Player::findOrFail($id);
-
-        $validatedUpdateData = $request->validate([
-            'nickname' => 'required|string|max:255',
-            'server' => 'required|string|in:EU,NA,ASIA',
-            'account_id' => 'required|integer|unique:players,account_id' . $id,
-            'clan_id' => 'nullable|exists:clans,id',
-        ]);
-
-        $player->update($validatedUpdateData);
-
-        return response()->json($player);
-    }
-
-    //delete a player
-
-    public function destroy($id)
-    {
-        $player = Player::findOrFail($id);
-        $player->delete();
-
-        return response()->json(['message' => 'Player deleted succesfully from records.']);
     }
 }

@@ -14,16 +14,25 @@ class ClanService
         $this->apiKey = config('services.wargaming.api_key');
     }
 
+
     public function getClans($server, $page = 1, $limit = 100)
     {
-        $url = "https://api.worldofwarships.eu/wows/clans/list/";
+        $baseUrls = [
+            'eu' => 'https://api.worldofwarships.eu',
+            'na' => 'https://api.worldofwarships.com',
+            'asia' => 'https://api.worldofwarships.asia',
+        ];
+
+        $url = "{$baseUrls[$server]}/wows/clans/list/";
 
         try {
-            $response = Http::get($url, [
-                'application_id' => $this->apiKey,
-                'page_no' => $page,
-                'limit' => $limit,
-            ]);
+            $response = retry(3, function () use ($url, $page, $limit) {
+                return Http::timeout(60)->get($url, [
+                    'application_id' => $this->apiKey,
+                    'page_no' => $page,
+                    'limit' => $limit,
+                ]);
+            }, 1000);
 
             if ($response->failed()) {
                 Log::error("API Request failed with status: " . $response->status());
@@ -31,14 +40,10 @@ class ClanService
                 return null;
             }
 
-            if ($response->successful()) {
-                Log::info("API Success Response", $response->json());
-                return $response->json();
-            }
+            return $response->json();
         } catch (\Exception $e) {
             Log::error("Exception during API Call: " . $e->getMessage());
+            return null;
         }
-
-        return null;
     }
 }

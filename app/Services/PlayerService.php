@@ -14,7 +14,7 @@ class PlayerService
     {
         $this->apiKey = config('services.wargaming.api_key');
 
-        // Define base URLs for each server region
+        // Base URLs for each server
         $this->baseUrls = [
             'eu' => 'https://api.worldofwarships.eu',
             'na' => 'https://api.worldofwarships.com',
@@ -22,10 +22,7 @@ class PlayerService
         ];
     }
 
-    /**
-     * Fetch all players for a given search term from the Wargaming API
-     */
-    public function getAllPlayers($server, $search)
+    public function getAllPlayers($server, $search, $page = 1, $limit = 100)
     {
         if (!isset($this->baseUrls[$server])) {
             Log::error("Invalid server specified: {$server}");
@@ -33,48 +30,30 @@ class PlayerService
         }
 
         $url = $this->baseUrls[$server] . "/wows/account/list/";
-        $allPlayers = [];
-        $page = 1;
-        $limit = 100;
-        $maxPages = 5; // Stop after 5 pages to avoid infinite loop
-
         try {
-            while (true) {
-                $response = Http::get($url, [
-                    'application_id' => $this->apiKey,
-                    'search' => $search,
-                    'page_no' => $page,
-                    'limit' => $limit,
-                ]);
+            $response = Http::get($url, [
+                'application_id' => $this->apiKey,
+                'search' => $search,
+                'page_no' => $page,
+                'limit' => $limit,
+            ]);
 
-                if ($response->failed()) {
-                    Log::error("Player API Request failed with status: " . $response->status());
-                    return null;
-                }
+            if ($response->failed()) {
+                Log::error("Player API Request failed for server: {$server} with status: " . $response->status());
+                return null;
+            }
 
-                $responseData = $response->json();
-                if ($responseData['status'] === 'ok' && isset($responseData['data'])) {
-                    $players = $responseData['data'];
-                    $allPlayers = array_merge($allPlayers, $players);
+            $responseData = $response->json();
 
-                    Log::info("Fetched page {$page} for search term '{$search}' with " . count($players) . " players.");
-
-                    // Break if there are fewer than $limit players, indicating the last page
-                    if (count($players) < $limit || $page >= $maxPages) {
-                        break;
-                    }
-
-                    $page++;
-                } else {
-                    Log::error("Player API returned an error", ['error' => $responseData['error']]);
-                    break;
-                }
+            if ($responseData['status'] === 'ok' && isset($responseData['data'])) {
+                return $responseData['data'];
+            } else {
+                Log::error("Unexpected API response for server: {$server}", ['response' => $responseData]);
             }
         } catch (\Exception $e) {
             Log::error("Exception during Player API call: " . $e->getMessage());
-            return null;
         }
 
-        return $allPlayers;
+        return null;
     }
 }
