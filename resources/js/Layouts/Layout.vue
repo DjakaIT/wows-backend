@@ -12,41 +12,33 @@
     <slot />
   </main>
   <footer>
-    <b-container>
-      <b-row>
-        <b-col>
+    <div>
+      <div>
+        <div>
           <ul>
             <li>
-              <router-link :to="{ name: 'Faq' }">
-                {{ $t('footer_link_faq') }}
-              </router-link>
+              footer_link_faq
             </li>
             <li>
-              <router-link :to="{ name: 'Imprint' }">
-                {{ $t('footer_link_imprint') }}
-              </router-link>
+              footer_link_imprint
             </li>
             <li>
-              <router-link :to="{ name: 'Privacy' }">
-                {{ $t('footer_link_privacy') }}
-              </router-link>
+              footer_link_privacy
             </li>
             <li>
-              <router-link :to="{ name: 'Contact' }">
-                {{ $t('footer_link_contact') }}
-              </router-link>
+              footer_link_contact
             </li>
           </ul>
-        </b-col>
-      </b-row>
-      <b-row>
-        <b-col>
+        </div>
+      </div>
+      <div>
+        <div>
           <p class="disclaimer">
-            {{ $t('footer') }}
+            footer
           </p>
-        </b-col>
-      </b-row>
-    </b-container>
+        </div>
+      </div>
+    </div>
   </footer>
 </template>
 
