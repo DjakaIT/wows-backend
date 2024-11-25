@@ -13,81 +13,177 @@ use App\Http\Controllers\PlayerStatisticController;
 
 Route::get('/', function () {
     // DATA INFO
-    // 1. List of 10 best players today
-    // 2. List of 10 best players last 7 days
-    // 3. List of 10 best players last month (25 days)
-    // 4. List of 10 best players overall (28 days)
+    // 1. List of 10 best players today -  tier is above 5 and 5+ battles
+    // 2. List of 10 best players last 7 days - tier is above 5 and 30+ battles
+    // 3. List of 10 best players last month (25 days) - tier is above 5 and 120+ battles
+    // 4. List of 10 best players overall (28 days) - tier is above 5 and 500+ battles
     // 5. List of 10 best Clans
     return Inertia::render('Home', [
-        'topPlayersLast24Hours' => [
-            ['name' => 'player 1', 'wid' => 234, 'wn8' => 2334],
-            ['name' => 'player 2', 'wid' => 234, 'wn8' => 2245],
-            ['name' => 'player 3', 'wid' => 234, 'wn8' => 1988],
-            ['name' => 'player 4', 'wid' => 234, 'wn8' => 1800],
-            ['name' => 'player 5', 'wid' => 234, 'wn8' => 1788],
-            ['name' => 'player 6', 'wid' => 234, 'wn8' => 1501],
-            ['name' => 'player 7', 'wid' => 234, 'wn8' => 1400],
-            ['name' => 'player 8', 'wid' => 234, 'wn8' => 985],
-            ['name' => 'player 9', 'wid' => 234, 'wn8' => 300],
-            ['name' => 'player 10', 'wid' => 234, 'wn8' => 204],
-        ],
-        'topPlayersLastSevenDays' => [
-            ['name' => 'player 1', 'wid' => 234, 'wn8' => 2334],
-            ['name' => 'player 2', 'wid' => 234, 'wn8' => 2245],
-            ['name' => 'player 3', 'wid' => 234, 'wn8' => 1988],
-            ['name' => 'player 4', 'wid' => 234, 'wn8' => 1800],
-            ['name' => 'player 5', 'wid' => 234, 'wn8' => 1788],
-            ['name' => 'player 6', 'wid' => 234, 'wn8' => 1501],
-            ['name' => 'player 7', 'wid' => 234, 'wn8' => 1400],
-            ['name' => 'player 8', 'wid' => 234, 'wn8' => 985],
-            ['name' => 'player 9', 'wid' => 234, 'wn8' => 300],
-            ['name' => 'player 10', 'wid' => 234, 'wn8' => 204],
-        ],
-        'topPlayersLastMonth' => [
-            ['name' => 'player 1', 'wid' => 234, 'wn8' => 2334],
-            ['name' => 'player 2', 'wid' => 234, 'wn8' => 2245],
-            ['name' => 'player 3', 'wid' => 234, 'wn8' => 1988],
-            ['name' => 'player 4', 'wid' => 234, 'wn8' => 1800],
-            ['name' => 'player 5', 'wid' => 234, 'wn8' => 1788],
-            ['name' => 'player 6', 'wid' => 234, 'wn8' => 1501],
-            ['name' => 'player 7', 'wid' => 234, 'wn8' => 1400],
-            ['name' => 'player 8', 'wid' => 234, 'wn8' => 985],
-            ['name' => 'player 9', 'wid' => 234, 'wn8' => 300],
-            ['name' => 'player 10', 'wid' => 234, 'wn8' => 204],
-        ],
-        'topPlayersOverall' => [
-            ['name' => 'player 1', 'wid' => 234, 'wn8' => 2334],
-            ['name' => 'player 2', 'wid' => 234, 'wn8' => 2245],
-            ['name' => 'player 3', 'wid' => 234, 'wn8' => 1988],
-            ['name' => 'player 4', 'wid' => 234, 'wn8' => 1800],
-            ['name' => 'player 5', 'wid' => 234, 'wn8' => 1788],
-            ['name' => 'player 6', 'wid' => 234, 'wn8' => 1501],
-            ['name' => 'player 7', 'wid' => 234, 'wn8' => 1400],
-            ['name' => 'player 8', 'wid' => 234, 'wn8' => 985],
-            ['name' => 'player 9', 'wid' => 234, 'wn8' => 300],
-            ['name' => 'player 10', 'wid' => 234, 'wn8' => 204],
-        ],
-        'topClans' => [
-            ['name' => 'clan 1', 'wid' => 234, 'wn8' => 2334],
-            ['name' => 'clan 2', 'wid' => 234, 'wn8' => 2245],
-            ['name' => 'clan 3', 'wid' => 234, 'wn8' => 1988],
-            ['name' => 'clan 4', 'wid' => 234, 'wn8' => 1800],
-            ['name' => 'clan 5', 'wid' => 234, 'wn8' => 1788],
-            ['name' => 'clan 6', 'wid' => 234, 'wn8' => 1501],
-            ['name' => 'clan 7', 'wid' => 234, 'wn8' => 1400],
-            ['name' => 'clan 8', 'wid' => 234, 'wn8' => 985],
-            ['name' => 'clan 9', 'wid' => 234, 'wn8' => 300],
-            ['name' => 'clan 10', 'wid' => 234, 'wn8' => 204],
-        ],
+        'statistics' => [
+            'topPlayersLast24Hours' => [
+                ['name' => 'player 1', 'wid' => 234, 'wn8' => 2334],
+                ['name' => 'player 2', 'wid' => 234, 'wn8' => 2245],
+                ['name' => 'player 3', 'wid' => 234, 'wn8' => 1988],
+                ['name' => 'player 4', 'wid' => 234, 'wn8' => 1800],
+                ['name' => 'player 5', 'wid' => 234, 'wn8' => 1788],
+                ['name' => 'player 6', 'wid' => 234, 'wn8' => 1501],
+                ['name' => 'player 7', 'wid' => 234, 'wn8' => 1400],
+                ['name' => 'player 8', 'wid' => 234, 'wn8' => 985],
+                ['name' => 'player 9', 'wid' => 234, 'wn8' => 300],
+                ['name' => 'player 10', 'wid' => 234, 'wn8' => 204],
+            ],
+            'topPlayersLastSevenDays' => [
+                ['name' => 'player 1', 'wid' => 234, 'wn8' => 2334],
+                ['name' => 'player 2', 'wid' => 234, 'wn8' => 2245],
+                ['name' => 'player 3', 'wid' => 234, 'wn8' => 1988],
+                ['name' => 'player 4', 'wid' => 234, 'wn8' => 1800],
+                ['name' => 'player 5', 'wid' => 234, 'wn8' => 1788],
+                ['name' => 'player 6', 'wid' => 234, 'wn8' => 1501],
+                ['name' => 'player 7', 'wid' => 234, 'wn8' => 1400],
+                ['name' => 'player 8', 'wid' => 234, 'wn8' => 985],
+                ['name' => 'player 9', 'wid' => 234, 'wn8' => 300],
+                ['name' => 'player 10', 'wid' => 234, 'wn8' => 204],
+            ],
+            'topPlayersLastMonth' => [
+                ['name' => 'player 1', 'wid' => 234, 'wn8' => 2334],
+                ['name' => 'player 2', 'wid' => 234, 'wn8' => 2245],
+                ['name' => 'player 3', 'wid' => 234, 'wn8' => 1988],
+                ['name' => 'player 4', 'wid' => 234, 'wn8' => 1800],
+                ['name' => 'player 5', 'wid' => 234, 'wn8' => 1788],
+                ['name' => 'player 6', 'wid' => 234, 'wn8' => 1501],
+                ['name' => 'player 7', 'wid' => 234, 'wn8' => 1400],
+                ['name' => 'player 8', 'wid' => 234, 'wn8' => 985],
+                ['name' => 'player 9', 'wid' => 234, 'wn8' => 300],
+                ['name' => 'player 10', 'wid' => 234, 'wn8' => 204],
+            ],
+            'topPlayersOverall' => [
+                ['name' => 'player 1', 'wid' => 234, 'wn8' => 2334],
+                ['name' => 'player 2', 'wid' => 234, 'wn8' => 2245],
+                ['name' => 'player 3', 'wid' => 234, 'wn8' => 1988],
+                ['name' => 'player 4', 'wid' => 234, 'wn8' => 1800],
+                ['name' => 'player 5', 'wid' => 234, 'wn8' => 1788],
+                ['name' => 'player 6', 'wid' => 234, 'wn8' => 1501],
+                ['name' => 'player 7', 'wid' => 234, 'wn8' => 1400],
+                ['name' => 'player 8', 'wid' => 234, 'wn8' => 985],
+                ['name' => 'player 9', 'wid' => 234, 'wn8' => 300],
+                ['name' => 'player 10', 'wid' => 234, 'wn8' => 204],
+            ],
+            'topClans' => [
+                ['name' => 'clan 1', 'wid' => 234, 'wn8' => 2334],
+                ['name' => 'clan 2', 'wid' => 234, 'wn8' => 2245],
+                ['name' => 'clan 3', 'wid' => 234, 'wn8' => 1988],
+                ['name' => 'clan 4', 'wid' => 234, 'wn8' => 1800],
+                ['name' => 'clan 5', 'wid' => 234, 'wn8' => 1788],
+                ['name' => 'clan 6', 'wid' => 234, 'wn8' => 1501],
+                ['name' => 'clan 7', 'wid' => 234, 'wn8' => 1400],
+                ['name' => 'clan 8', 'wid' => 234, 'wn8' => 985],
+                ['name' => 'clan 9', 'wid' => 234, 'wn8' => 300],
+                ['name' => 'clan 10', 'wid' => 234, 'wn8' => 204],
+            ],
+        ]
     ]);
 });
 
-Route::get('/player/{id}', function () {
+Route::get('/player', function () {
     // DATA INFO
     // 1. Player information
     // 2. Player statistics 1,7,month, overall
     // 3. Player ships
-    return Inertia::render('Player');
+    return Inertia::render('Player', [
+        'playerInfo' => [
+            'name' => 'Player 1',
+            'wid' => 111,
+            'createdAt' => '01.12.2023',
+            'clanName' => 'Clan 1',
+            'clanId' => 333
+        ],
+        'playerStatistics' => [
+            'overall' => [
+                'battles' => 2000,
+                'wins' => 59.7, // percentage
+                'tier' => '7,7',
+                'survived' => 48.59, // perventage
+                'damage' => 70.968,
+                'frags' => '1,13',
+                'spotted' => '0,18',
+                'xp' => 1.889,
+                'capture' => 1000, // ??? type ???
+                'defend' => 1000, // ??? type ???
+                'pr' => 2800, // ??? type ???
+                'wn8' => 3200 // ??? type ???
+            ],
+            'lastDay' => [ // last day only
+                'battles' => 2000,
+                'wins' => 59.7, // percentage
+                'tier' => '7,7',
+                'survived' => 48.59, // perventage
+                'damage' => 70.968,
+                'frags' => '1,13',
+                'spotted' => '0,18',
+                'xp' => 1.889,
+                'capture' => 1000, // ??? type ???
+                'defend' => 1000, // ??? type ???
+                'pr' => 2800, // ??? type ???
+                'wn8' => 3200 // ??? type ???
+            ],
+            'lastWeek' => [ // last 7 days
+                'battles' => 2000,
+                'wins' => 59.7, // percentage
+                'tier' => '7,7',
+                'survived' => 48.59, // perventage
+                'damage' => 70.968,
+                'frags' => '1,13',
+                'spotted' => '0,18',
+                'xp' => 1.889,
+                'capture' => 1000, // ??? type ???
+                'defend' => 1000, // ??? type ???
+                'pr' => 2800, // ??? type ???
+                'wn8' => 3200 // ??? type ???
+            ],
+            'lastMonth' => [ // Last 25 days
+                'battles' => 2000,
+                'wins' => 59.7, // percentage
+                'tier' => '7,7',
+                'survived' => 48.59, // perventage
+                'damage' => 70.968,
+                'frags' => '1,13',
+                'spotted' => '0,18',
+                'xp' => 1.889,
+                'capture' => 1000, // ??? type ???
+                'defend' => 1000, // ??? type ???
+                'pr' => 2800, // ??? type ???
+                'wn8' => 3200 // ??? type ???
+            ]
+        ],
+        'playerVehicles' => [
+          [
+            'nation' => 'Germany',
+            'name' => 'Vehicle name',
+            'tier' => 2,
+            'battles' => 38,
+            'frags' => 34,
+            'damage' => 4.280,
+            'wins' => 67.46, // percentage
+            'wn8' => 1754,
+            'image' => 'image url', // ??? url ???
+            'description' => 'Vehicle description',
+            'wid' => 555
+          ],
+          [
+            'nation' => 'Japan',
+            'name' => 'Vehicle name',
+            'tier' => 4,
+            'battles' => 45,
+            'frags' => 32,
+            'damage' => 7.490,
+            'wins' => 36.46, // percentage
+            'wn8' => 980,
+            'image' => 'image url', // ??? url ???
+            'description' => 'Vehicle description',
+            'wid' => 555
+          ]
+        ],
+    ]);
 });
 
 Route::get('/clan/{id}', function () {
