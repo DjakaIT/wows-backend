@@ -3,10 +3,24 @@
 namespace App\Http\Controllers;
 
 use App\Models\PlayerStatistic;
+use App\Services\PlayerStatisticService;
 use Illuminate\Http\Request;
 
 class PlayerStatisticController extends Controller
 {
+
+    protected $playerStatisticService;
+
+    public function __construct(PlayerStatisticService $playerStatisticService)
+    {
+        $this->playerStatisticService = $playerStatisticService;
+    }
+
+    public function updatePlayerStats()
+    {
+        $this->playerStatisticService->fetchAndStorePlayerStats();
+        return response()->json(['message' => 'method fetchAndStorePlayerStats finished succesfully.']);
+    }
 
     public function index()
     {

@@ -16,7 +16,7 @@ return new class extends Migration
             $table->bigInteger('ship_id')->unique();
             $table->string('name', 255);
             $table->integer('tier');
-            $table->enum('type', ['Destroyer', 'Cruiser', 'Battleship', 'Aircraft Carrier', 'Submarine']);
+            $table->string('type', 125);
             $table->string('nation', 255);
             $table->timestamps();
         });

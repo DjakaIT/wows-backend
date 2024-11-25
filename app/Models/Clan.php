@@ -14,7 +14,9 @@ class Clan extends Model
         'name',
         'tag',
         'server',
-        'clan_id'
+        'clan_id',
+        'members_count',
+        'clan_created'
     ];
 
     //defines a OneToMany relationship with players table in the db

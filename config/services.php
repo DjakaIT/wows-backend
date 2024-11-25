@@ -35,4 +35,8 @@ return [
         ],
     ],
 
+    'wargaming' => [
+        'api_key' => env('WARGAMING_API_KEY')
+    ],
+
 ];

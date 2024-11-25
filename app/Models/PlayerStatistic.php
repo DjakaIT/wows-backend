@@ -10,13 +10,19 @@ class PlayerStatistic extends Model
     use HasFactory;
 
     protected $fillable = [
-        'player_id',
+        'account_id',
+        'nickname',
+        'private_battle_life_time',
+        'private_gold',
+        'private_port',
         'battles_played',
-        'wins',
         'damage_dealt',
-        'avg_xp',
-        'win_rate',
-        'wn8'
+        'wins',
+        'losses',
+        'survived_battles',
+        'frags',
+        'xp',
+        'distance'
     ];
 
     public function player()
