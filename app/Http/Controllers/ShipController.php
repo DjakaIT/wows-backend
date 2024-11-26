@@ -4,10 +4,57 @@ namespace App\Http\Controllers;
 
 use App\Models\Ship;
 use Illuminate\Http\Request;
+use App\Services\ShipService;
+use Illuminate\Support\Facades\Log;
 
 class ShipController extends Controller
 {
     //display all ships
+
+    protected $ShipService;
+
+    public function __construct(ShipService $shipService)
+    {
+        $this->ShipService = $shipService;
+    }
+
+    public function fetchAndStoreShips(Request $request)
+    {
+
+        Log::info("Reached fetchAndStoreShips method");
+
+        $limit = 100;
+        $page = 1;
+        $hasMore = true;
+
+        while ($hasMore) {
+            $ships = $this->ShipService->getShips($page, $limit);
+
+            if ($ships && isset($ships['data'])) {
+                foreach ($ships['data'] as $shipData) {
+                    Ship::updateOrCreate(
+                        ['ship_id' => $shipData['ship_id']],
+                        [
+                            'name' => $shipData['name'],
+                            'nation' => $shipData['nation'],
+                            'type' => $shipData['type'],
+                            'tier' => $shipData['tier'],
+                            'is_premium' => $shipData['is_premium'] ?? false,
+                        ]
+                    );
+
+                    Log::info("Stored ship with ID: " . $shipData['ship_id']);
+                }
+
+                $page++;
+                $hasMore = count($ships['data']) === $limit;
+            } else {
+                $hasMore = false;
+            }
+        }
+
+        return response()->json(['message' => 'Ships fetched and stored in database succesfully', 201]);
+    }
 
     public function index()
     {

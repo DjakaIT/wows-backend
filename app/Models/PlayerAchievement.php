@@ -10,14 +10,13 @@ class PlayerAchievement extends Model
     use HasFactory;
 
     protected $fillable = [
-        'player_id',
+        'account_id',
         'achievement_id',
-        'date_earned'
+        'achievement_name',
+        'achievement_type',
+        'achievement_count'
     ];
 
-    protected $casts = [
-        'date_earned' => 'datetime'
-    ];
 
     public function playerAchievements()
     {

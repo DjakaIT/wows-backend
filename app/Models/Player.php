@@ -10,12 +10,13 @@ class Player extends Model
 {
     use HasFactory;
 
-    protected $filable = [
+    protected $fillable = [
+        'account_id',
         'nickname',
         'server',
-        'account_id',
         'clan_id'
     ];
+
 
     //defines the relationship with Clan table
     public function clan()

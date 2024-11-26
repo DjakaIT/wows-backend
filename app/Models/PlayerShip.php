@@ -9,18 +9,40 @@ class PlayerShip extends Model
 {
     use HasFactory;
 
-
     protected $fillable = [
-
-        'player_id',
+        'account_id',
         'ship_id',
         'battles_played',
+        'frags',
+        'distance',
         'wins_count',
         'damage_dealt',
         'average_damage',
-        'frags',
-        'survival_rate'
+        'created_at',
+        'updated_at',
+        'survival_rate',
+        'pve_battles',
+        'pve_wins',
+        'pve_frags',
+        'pve_xp',
+        'pve_survived_battles',
+        'pvp_battles',
+        'pvp_wins',
+        'pvp_frags',
+        'pvp_xp',
+        'pvp_survived_battles',
+        'club_battles',
+        'club_wins',
+        'club_frags',
+        'club_xp',
+        'club_survived_battles',
+        'rank_battles',
+        'rank_wins',
+        'rank_frags',
+        'rank_xp',
+        'rank_survived_battles',
     ];
+
 
 
     public function player()
@@ -31,15 +53,5 @@ class PlayerShip extends Model
     public function ship()
     {
         return $this->belongsTo(Ship::class);
-    }
-
-
-    public function averageDamage()
-    {
-        return $this->battles_played > 0 ? round($this->damage_dealt / $this->battles_played) : 0;
-    }
-    public function totalBattles()
-    {
-        return $this->battles_played->count();
     }
 }

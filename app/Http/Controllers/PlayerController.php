@@ -4,63 +4,77 @@ namespace App\Http\Controllers;
 
 use App\Models\Player;
 use Illuminate\Http\Request;
+use App\Services\PlayerService;
+use Illuminate\Support\Facades\Log;
 
 class PlayerController extends Controller
 {
-    //index method made to display players
+    protected $PlayerService;
 
-    public function index()
+    public function __construct(PlayerService $playerService)
     {
-        $players = Player::all();
-
-        return response()->json($players);
+        $this->PlayerService = $playerService;
     }
 
-    public function show($id)
+    public function generateSearchTerms()
     {
-        $player = Player::findOrFail($id);
-        return response()->json($player);
+        $terms = [];
+        foreach (range('a', 'z') as $letter) {
+            $terms[] = $letter;
+
+            foreach (range('a', 'z') as $secondLetter) {
+                $terms[] = $letter . $secondLetter;
+
+                foreach (range('a', 'z') as $thirdLetter) {
+                    $terms[] = $letter . $secondLetter . $thirdLetter;
+                }
+            }
+        }
+        return $terms;
     }
 
-    //save a player
-    public function store(Request $request)
+    public function fetchAndStorePlayers(Request $request)
     {
-        $validatedNewData = $request->validate([
-            'nickname' => 'required|string|max:255',
-            'server' => 'required|string|in:EU,NA,ASIA',
-            'account_id' => 'required|integer|unique:players,account_id',
-            'clan_id' => 'nullable|exists:clans,id',
-        ]);
+        Log::info("Started fetching players");
 
+        $servers = ['eu', 'na', 'asia'];
+        $searchTerms = $this->generateSearchTerms();
+        $limit = 100;
 
-        $player = Player::create($validatedNewData);
-        return response()->json($player, 201);
-    }
+        foreach ($servers as $server) {
+            foreach ($searchTerms as $search) {
+                $page = 1;
+                $hasMore = true;
 
-    //update specific player's details
-    public function update(Request $request, $id)
-    {
-        $player = Player::findOrFail($id);
+                while ($hasMore) {
+                    $players = $this->PlayerService->getAllPlayers($server, $search, $page, $limit);
 
-        $validatedUpdateData = $request->validate([
-            'nickname' => 'required|string|max:255',
-            'server' => 'required|string|in:EU,NA,ASIA',
-            'account_id' => 'required|integer|unique:players,account_id' . $id,
-            'clan_id' => 'nullable|exists:clans,id',
-        ]);
+                    if ($players) {
+                        foreach ($players as $playerData) {
+                            Player::updateOrCreate(
+                                ['account_id' => $playerData['account_id']],
+                                [
+                                    'nickname' => $playerData['nickname'],
+                                    'server' => strtoupper($server),
+                                ]
+                            );
+                            Log::info("Stored player with ID: " . $playerData['account_id'] . " on server: " . strtoupper($server));
+                        }
 
-        $player->update($validatedUpdateData);
+                        Log::info("Fetched page {$page} for search term '{$search}' on server: " . strtoupper($server));
+                        $page++;
+                        $hasMore = count($players) === $limit;
+                    } else {
+                        Log::info("No more players found for search term '{$search}' on server: " . strtoupper($server));
+                        $hasMore = false;
+                    }
+                }
 
-        return response()->json($player);
-    }
+                // Short delay to respect API rate limits
+                usleep(500000); // 0.5 seconds
+            }
+        }
 
-    //delete a player
-
-    public function destroy($id)
-    {
-        $player = Player::findOrFail($id);
-        $player->delete();
-
-        return response()->json(['message' => 'Player deleted succesfully from records.']);
+        return response()->json(['message' => 'All players fetched and stored in database successfully'], 201);
     }
 }

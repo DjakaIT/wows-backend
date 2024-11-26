@@ -2,53 +2,50 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\ClanMember;
+use App\Services\ClanMemberService;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Http\Request;
 
 class ClanMemberController extends Controller
 {
+    protected $clanMemberService;
 
-    public function index()
+    public function __construct(ClanMemberService $clanMemberService)
     {
-        $clanMember = ClanMember::all();
-        return response()->json($clanMember);
+        $this->clanMemberService = $clanMemberService;
     }
 
-    public function show($id)
+    public function updateClanMembers()
     {
-        $clanMember = ClanMember::findOrFail($id);
-        return response()->json($clanMember);
-    }
+        Log::info("Starting clan members update process");
 
-    public function store(Request $request)
-    {
+        try {
+            $startTime = now();
+            $this->clanMemberService->fetchAndStoreClanMembers();
+            $endTime = now();
 
-        $validateNewData = $request->validate([
-            'players_id' => 'required|integer|unique:players, player_id',
-            'clans_id' => 'required|integer|unique:clans, clan_id',
-            'joined_at' => 'required|datetime',
-            'left_at' => 'required|datetime',
-            'role' => 'required|string|in:member,officer,leader'
-        ]);
+            $duration = $startTime->diffInSeconds($endTime);
 
-        $clanMember = ClanMember::create($validateNewData);
-        return response()->json($clanMember, 201);
-    }
+            Log::info("Successfully completed clan members update", [
+                'duration_seconds' => $duration
+            ]);
 
-    public function update(Request $request, $id)
-    {
-        $clanMember = ClanMember::findOrFail($id);
+            return response()->json([
+                'message' => 'Clan members data has been successfully updated.',
+                'duration_seconds' => $duration
+            ], 200);
+        } catch (\Exception $e) {
+            Log::error("Failed to update clan members", [
+                'error' => $e->getMessage(),
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
+                'trace' => $e->getTraceAsString()
+            ]);
 
-        $validateUpdateData = $request->validate([
-            'players_id' => 'required|integer|unique:players, player_id',
-            'clans_id' => 'required|integer|unique:clans, clan_id',
-            'joined_at' => 'required|datetime',
-            'left_at' => 'required|datetime',
-            'role' => 'required|string|in:member,officer,leader'
-        ]);
-
-
-        $clanMember->update($validateUpdateData);
-        return response()->json($clanMember);
+            return response()->json([
+                'error' => 'Failed to update clan members',
+                'message' => $e->getMessage()
+            ], 500);
+        }
     }
 }

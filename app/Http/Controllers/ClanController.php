@@ -4,56 +4,64 @@ namespace App\Http\Controllers;
 
 use App\Models\Clan;
 use Illuminate\Http\Request;
+use App\Services\ClanService;
+use Illuminate\Support\Facades\Log;
+use Carbon\Carbon;
 
 class ClanController extends Controller
 {
-    public function index()
+    protected $ClanService;
+
+    public function __construct(ClanService $clanService)
     {
-        $clans = Clan::all();
-        return response()->json($clans);
+        $this->ClanService = $clanService;
     }
 
-    public function showClan($id)
-
+    public function fetchAndStoreClans(Request $request)
     {
-        $clan = Clan::findOrFail($id);
-        return response()->json($clan);
-    }
+        Log::info("Reached fetchAndStoreClans method");
 
-    public function store(Request $request)
-    {
-        $validateClanData = ([
-            'name' => 'required|string|max:255',
-            'tag' => 'required|string|max:15',
-            'server' => 'required|string|in:EU,NA,ASIA',
-            'clan_id' => 'required|integer|unique|clan, clan_id'
-        ]);
+        $servers = ['eu', 'na', 'asia'];
+        $limit = 100;
+        foreach ($servers as $server) {
+            $page = 1;
+            $hasMore = true;
 
-        $clan = Clan::create($validateClanData);
-        return response()->json($clan, 201);
-    }
+            Log::info("Fetching clans from server: " . strtoupper($server));
 
-    public function update(Request $request, $id)
-    {
+            while ($hasMore) {
+                $clans = $this->ClanService->getClans($server, $page, $limit);
 
-        $clan = Clan::findOrFail($id);
+                if ($clans && isset($clans['data'])) {
+                    foreach ($clans['data'] as $clanData) {
 
-        $validateUpdatedClanData = ([
-            'name' => 'required|string|max:255',
-            'tag' => 'required|string|max:15',
-            'server' => 'required|string|in:EU,NA,ASIA',
-            'clan_id' => 'required|integer|unique|clan, clan_id' . $id
-        ]);
-
-        $clan->update($validateUpdatedClanData);
-        return response()->json($clan);
-    }
+                        $clanCreated = isset($clanData['created_at']) ? Carbon::createFromTimestamp($clanData['created_at'])->toDateTimeString() : null;
+                        $membersCount = isset($clanData['members_count']) ? (int) $clanData['members_count'] : null;
+                        Clan::updateOrCreate(
+                            ['clan_id' => $clanData['clan_id']],
+                            [
+                                'name' => $clanData['name'],
+                                'tag' => $clanData['tag'],
+                                'server' => strtoupper($server),
+                                'clan_created' => $clanCreated,
+                                'members_count' => $membersCount
+                            ]
+                        );
+                        Log::info("Stored clan with ID: " . $clanData['clan_id'] . " on server: " . strtoupper($server));
+                    }
 
 
-    public function destroy($id)
-    {
-        $clan = Clan::findOrFail($id);
-        $clan->delete();
-        return response()->json(['message' => 'Clan succesfully deleted from records']);
+                    Log::info("Fetched page {$page} from server: " . strtoupper($server));
+
+                    $page++;
+                    $hasMore = count($clans['data']) === $limit;
+                } else {
+                    $hasMore = false;
+                    Log::warning("No more clans to fetch from server: " . strtoupper($server));
+                }
+            }
+        }
+
+        return response()->json(['message' => 'Clans fetched and stored successfully'], 201);
     }
 }
