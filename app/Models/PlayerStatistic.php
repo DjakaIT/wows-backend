@@ -12,6 +12,7 @@ class PlayerStatistic extends Model
     protected $fillable = [
         'account_id',
         'nickname',
+        'wn8',
         'private_battle_life_time',
         'private_gold',
         'private_port',
