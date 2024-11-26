@@ -23,27 +23,57 @@ class PlayerShipService
     public function loadExpectedValues()
     {
         $path = resource_path('expected_values.json');
-        if (File::exists($path)) {
-            $this->expectedValues = json_decode(File::get($path), true);
-        } else {
+        if (!File::exists($path)) {
             Log::error("Expected values file not found at: $path");
-            $this->expectedValues = [];
+            throw new \Exception("Expected values file not found");
         }
+
+        $jsonContent = File::get($path);
+        $decodedData = json_decode($jsonContent, true);
+
+        if (json_last_error() !== JSON_ERROR_NONE) {
+            Log::error("Invalid JSON in expected values file", [
+                'error' => json_last_error_msg(),
+                'path' => $path
+            ]);
+            throw new \Exception("Invalid JSON in expected values file");
+        }
+
+        $this->expectedValues = $decodedData;
     }
 
-    private function calculateWN8($ship)
+    private function calculateWN8($ship, $totalBattles, $totalFrags, $totalWins, $totalDamageDealt)
     {
-        if (!isset($this->expectedValues['data'][$ship])) {
-            Log::warning("Expected values not found for ship_id: $ship");
+        $shipId = $ship->ship_id; // Extract the ship_id from the model
+
+        if (
+            !isset($this->expectedValues['data'][$shipId]) ||
+            empty($this->expectedValues['data'][$shipId])
+        ) {
+            Log::warning("Expected values not found or empty for ship_id: $shipId");
             return null;
         }
 
-        $expected = $this->expectedValues['data'][$ship];
+        $expected = $this->expectedValues['data'][$shipId];
 
-        $expectedDamage = $expected['average_damage_dealt'] ?? 0;
-        $expectedFrags = $expected['average_frags'] ?? 0;
-        $expectedWinsRate = $expected['win_rate'] ?? 0;
+        $expectedDamage = $expected['average_damage_dealt'] * $totalBattles;
+        $expectedFrags = $expected['average_frags'] * $totalBattles;
+        $expectedWins = ($expected['win_rate'] / 100) * $totalBattles;
+
+        // Ratios
+        $rDmg = $expectedDamage > 0 ? $totalDamageDealt / $expectedDamage : 0;
+        $rFrags = $expectedFrags > 0 ? $totalFrags / $expectedFrags : 0;
+        $rWins = $expectedWins > 0 ? $totalWins / $expectedWins : 0;
+
+        // Normalize
+        $nDmg = max(0, ($rDmg - 0.4) / (1 - 0.4));
+        $nFrags = max(0, ($rFrags - 0.1) / (1 - 0.1));
+        $nWins = max(0, ($rWins - 0.7) / (1 - 0.7));
+
+        // WN8 formula
+        return (700 * $nDmg) + (300 * $nFrags) + (150 * $nWins);
     }
+
 
     private function extractBattleStats($stats, $battleType)
     {
@@ -60,6 +90,8 @@ class PlayerShipService
 
     public function fetchAndStorePlayerShips()
     {
+        $this->loadExpectedValues();
+
         Log::info('Starting fetchAndStorePlayerShips');
 
         try {
@@ -181,8 +213,10 @@ class PlayerShipService
                             $totalSurvivedBattles = ($pvpStats['survived_battles'] ?? 0) + ($pveStats['survived_battles'] ?? 0) + ($clubStats['survived_battles'] ?? 0) + ($rankStats['survived_battles'] ?? 0);
                             $survivalRate = $totalBattles > 0 ? ($totalSurvivedBattles / $totalBattles) * 100 : 0;
 
+
+
                             Log::info("Processing ship stats", [
-                                'ship_id' => $ship->id,
+                                'ship_id' => $ship->ship_id,
                                 'pvp_battles' => $pvpStats['battles'] ?? 0,
                                 'pve_battles' => $pveStats['battles'] ?? 0,
                                 'club_battles' => $clubStats['battles'] ?? 0,
@@ -191,11 +225,14 @@ class PlayerShipService
                                 'distance' => 'distance',
                             ]);
 
+                            //wn8
+                            $wn8 =  $this->calculateWN8($ship, $totalBattles, $totalFrags, $totalWins, $totalDamageDealt);
+
                             // Use ship->id instead of ship_id from API
                             PlayerShip::updateOrCreate(
                                 [
                                     'account_id' => $playerId,
-                                    'ship_id' => $ship->id
+                                    'ship_id' => $shipStats['ship_id']
                                 ],
                                 [
                                     'battles_played' => $totalBattles,
@@ -205,6 +242,7 @@ class PlayerShipService
                                     'frags' => $totalFrags,
                                     'survival_rate' => $survivalRate,
                                     'distance' => $shipStats['distance'],
+                                    'wn8' => $wn8,
                                     // PVE stats
                                     'pve_battles' => $pveStats['battles'] ?? 0,
                                     'pve_wins' => $pveStats['wins'] ?? 0,

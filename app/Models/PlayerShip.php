@@ -23,6 +23,7 @@ class PlayerShip extends Model
         'survival_rate',
         'pve_battles',
         'pve_wins',
+        'wn8',
         'pve_frags',
         'pve_xp',
         'pve_survived_battles',
