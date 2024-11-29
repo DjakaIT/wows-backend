@@ -12,6 +12,9 @@ class PlayerShip extends Model
     protected $fillable = [
         'account_id',
         'ship_id',
+        'ship_name',
+        'ship_type',
+        'ship_tier',
         'battles_played',
         'frags',
         'distance',

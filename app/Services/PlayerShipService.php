@@ -54,8 +54,10 @@ class PlayerShipService
             return null;
         }
 
+        //store expected values for each ship in a variable
         $expected = $this->expectedValues['data'][$shipId];
 
+        //get final expected values by multiplying expected values with number of battles
         $expectedDamage = $expected['average_damage_dealt'] * $totalBattles;
         $expectedFrags = $expected['average_frags'] * $totalBattles;
         $expectedWins = ($expected['win_rate'] / 100) * $totalBattles;
@@ -70,8 +72,50 @@ class PlayerShipService
         $nFrags = max(0, ($rFrags - 0.1) / (1 - 0.1));
         $nWins = max(0, ($rWins - 0.7) / (1 - 0.7));
 
+
         // WN8 formula
-        return (700 * $nDmg) + (300 * $nFrags) + (150 * $nWins);
+        $wn8 = (700 * $nDmg) + (300 * $nFrags) + (150 * $nWins);
+
+
+
+        Log::info("Intermediate WN8 values", [
+            'ship_id' => $shipId,
+            'rDmg' => $rDmg,
+            'rFrags' => $rFrags,
+            'rWins' => $rWins,
+            'nDmg' => $nDmg,
+            'nFrags' => $nFrags,
+            'nWins' => $nWins,
+            'WN8' => $wn8,
+        ]);
+
+        return $wn8;
+    }
+
+    private function determineCategoryWN8($wn8)
+    {
+        //simple if statement, if "value" eq "num" then return "xvalue"
+        if ($wn8 == null) {
+            return 'Null';
+        }
+
+        if ($wn8 < 750) {
+            return 'Bad';
+        } elseif ($wn8 >= 750 && $wn8 < 1100) {
+            return 'Below Average';
+        } elseif ($wn8 >= 1100 && $wn8 < 1350) {
+            return 'Average';
+        } elseif ($wn8 >= 1350 && $wn8 < 1550) {
+            return 'Good';
+        } elseif ($wn8 >= 1550 && $wn8 < 1750) {
+            return 'Very Good';
+        } elseif ($wn8 >= 1750 && $wn8 < 2100) {
+            return 'Great';
+        } elseif ($wn8 >= 2100 && $wn8 < 2450) {
+            return 'Unicum';
+        } elseif ($wn8 >= 2450 && $wn8 < 9999) {
+            return 'Super Unicum';
+        }
     }
 
 
@@ -86,6 +130,45 @@ class PlayerShipService
             'survived_battles' => $stats[$battleType]['survived_battles'] ?? 0,
             'distance' => $stats[$battleType]['distance'] ?? 0,
         ];
+    }
+
+    public function getPlayerStatsByPeriod($period)
+    {
+        $query = PlayerShip::query();
+
+        // Define date ranges
+        $dateRanges = [
+            'last24hours' => now()->subHours(24),
+            'last7days' => now()->subDays(7),
+            'lastMonth' => now()->subDays(30),
+            'overall' => null, // no filter
+        ];
+
+        if (isset($dateRanges[$period]) && $period !== 'overall') {
+            $query->where('updated_at', '>=', $dateRanges[$period]);
+        }
+
+        // Filter by tiers and battles as per requirements
+        $query->where('tier', '>', 5);
+
+        // Select top 10 players based on WN8
+        return $query->orderByDesc('wn8')->take(10)->get([
+            'account_id as wid',
+            'name',
+            'wn8',
+        ]);
+    }
+
+    public function getAllStatsByPeriod()
+    {
+        $stats = [
+            'topPlayersLast24Hours' => $this->getPlayerStatsByPeriod('last24hours'),
+            'topPlayersLastSevenDays' => $this->getPlayerStatsByPeriod('last7days'),
+            'topPlayersLastMonth' => $this->getPlayerStatsByPeriod('lastMonth'),
+            'topPlayersOverall' => $this->getPlayerStatsByPeriod('overall'),
+        ];
+
+        return $stats;
     }
 
     public function fetchAndStorePlayerShips()
@@ -113,6 +196,7 @@ class PlayerShipService
                             // Find the ship using ship_id from the API
                             $ship = Ship::where('ship_id', $shipStats['ship_id'])->first();
 
+
                             if (!$ship) {
                                 Log::warning("Ship not found in database", [
                                     'api_ship_id' => $shipStats['ship_id'],
@@ -120,6 +204,12 @@ class PlayerShipService
                                 ]);
                                 continue;
                             }
+
+
+                            //extract stats from ships table 
+                            $shipName = $ship->name;
+                            $shipType = $ship->type;
+                            $shipTier = $ship->tier;
 
                             // Extract statistics for different battle types
                             $pvpStats = [];
@@ -228,6 +318,14 @@ class PlayerShipService
                             //wn8
                             $wn8 =  $this->calculateWN8($ship, $totalBattles, $totalFrags, $totalWins, $totalDamageDealt);
 
+                            //wn8 per type / category of a ship 
+                            $wn8 = $this->determineCategoryWN8($wn8);
+
+                            Log::info("Ship WN8 by category", [
+                                'ship_name' => $shipName,
+                                'ship_type' => $shipType,
+                                'WN8' => $wn8,
+                            ]);
                             // Use ship->id instead of ship_id from API
                             PlayerShip::updateOrCreate(
                                 [
@@ -241,6 +339,9 @@ class PlayerShipService
                                     'average_damage' => $averageDamage,
                                     'frags' => $totalFrags,
                                     'survival_rate' => $survivalRate,
+                                    'ship_name' => $shipName,
+                                    'ship_type' => $shipType,
+                                    'ship_tier' => $shipTier,
                                     'distance' => $shipStats['distance'],
                                     'wn8' => $wn8,
                                     // PVE stats
