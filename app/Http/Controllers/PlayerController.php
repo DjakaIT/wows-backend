@@ -56,6 +56,7 @@ class PlayerController extends Controller
                                 [
                                     'nickname' => $playerData['nickname'],
                                     'server' => strtoupper($server),
+                                    'clan_id' => $playerData['clan_id']
                                 ]
                             );
                             Log::info("Stored player with ID: " . $playerData['account_id'] . " on server: " . strtoupper($server));

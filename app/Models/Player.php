@@ -14,7 +14,8 @@ class Player extends Model
         'account_id',
         'nickname',
         'server',
-        'clan_id'
+        'clan_id',
+        'total_player_wn8'
     ];
 
 

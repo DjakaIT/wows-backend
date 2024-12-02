@@ -46,6 +46,7 @@ class PlayerShipService
     {
         $shipId = $ship->ship_id; // Extract the ship_id from the model
 
+        //check if it's missing or empty
         if (
             !isset($this->expectedValues['data'][$shipId]) ||
             empty($this->expectedValues['data'][$shipId])
@@ -91,6 +92,36 @@ class PlayerShipService
 
         return $wn8;
     }
+
+    public function totalPlayerWN8($playerId)
+    {
+        $playerShips = PlayerShip::where('account_id', $playerId)->get();
+
+
+        $total_weighted_wn8 = 0;
+        $total_battles = 0;
+
+        foreach ($playerShips as $playerShip) {
+            //condition: if there's battles played at all for that player 
+            //and corresponding wn8 for the ship played
+            if ($playerShip->battles_played > 0 && $playerShip->wn8 !== null) {
+                //weighted by total battles to get the total
+                $total_weighted_wn8 += $playerShip->wn8 * $playerShip->battles_played;
+                $total_battles += $playerShip->battles_played;
+            }
+        }
+
+        $player_total_wn8 = $total_battles > 0 ? $total_weighted_wn8 / $total_battles : 0;
+
+        Log::info("Total player wn8", [
+            'account_id' => $playerId,
+            'total_player_wn8' => $player_total_wn8,
+            'total_battles' => $total_battles
+        ]);
+
+        return $player_total_wn8;
+    }
+
 
     private function determineCategoryWN8($wn8)
     {
@@ -280,6 +311,8 @@ class PlayerShipService
                                 + ($pve_soloStats['damage_dealt'] ?? 0) + ($pve2Stats['damage_dealt'] ?? 0)
                                 + ($pve3Stats['damage_dealt'] ?? 0) + ($pvp2Stats['damage_dealt'] ?? 0)
                                 + ($pvp3Stats['damage_dealt'] ?? 0);
+
+
                             $averageDamage = $totalBattles > 0 ? $totalDamageDealt / $totalBattles : 0;
 
                             //calculate total wins
@@ -306,6 +339,7 @@ class PlayerShipService
 
 
                             Log::info("Processing ship stats", [
+                                'account_id' => $playerId,
                                 'ship_id' => $ship->ship_id,
                                 'pvp_battles' => $pvpStats['battles'] ?? 0,
                                 'pve_battles' => $pveStats['battles'] ?? 0,
@@ -318,13 +352,15 @@ class PlayerShipService
                             //wn8
                             $wn8 =  $this->calculateWN8($ship, $totalBattles, $totalFrags, $totalWins, $totalDamageDealt);
 
+                            //total_player_wn8
+                            $total_player_wn8 = $this->totalPlayerWN8($playerId);
                             //wn8 per type / category of a ship 
-                            $wn8 = $this->determineCategoryWN8($wn8);
+                            $wn8_category = $this->determineCategoryWN8($wn8);
 
                             Log::info("Ship WN8 by category", [
                                 'ship_name' => $shipName,
                                 'ship_type' => $shipType,
-                                'WN8' => $wn8,
+                                'WN8' => $wn8_category,
                             ]);
                             // Use ship->id instead of ship_id from API
                             PlayerShip::updateOrCreate(
@@ -344,6 +380,7 @@ class PlayerShipService
                                     'ship_tier' => $shipTier,
                                     'distance' => $shipStats['distance'],
                                     'wn8' => $wn8,
+                                    'total_player_wn8' => 
                                     // PVE stats
                                     'pve_battles' => $pveStats['battles'] ?? 0,
                                     'pve_wins' => $pveStats['wins'] ?? 0,
@@ -371,6 +408,8 @@ class PlayerShipService
                                 ]
                             );
                         }
+
+                        $this->totalPlayerWN8($playerId);
                     }
                 } else {
                     Log::error("Failed to fetch player ships", [
