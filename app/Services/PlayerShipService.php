@@ -294,8 +294,16 @@ class PlayerShipService
 
 
 
+                            /*               $modes = ['pvp', 'pve', 'club', 'rank_solo', 'rank_div2', 'rank_div3', 'pve_solo', 'pve_div2', 'pve_div3', 'pvp_div2', 'pvp_div3'];
+                            $totalStats = ['batles' => 0, 'wins' => 0, 'damage_dealt' => 0];
 
-
+                            foreach ($modes as $mode){
+                                if(isset($shipStats[mode])){
+                                    $stats = $this->extractBattleStats($shipStats, $mode);
+                                    $totalStats[]
+                                }
+                            }
+ */
                             // Calculate total battles
                             $totalBattles = ($pvpStats['battles'] ?? 0) + ($pveStats['battles'] ?? 0)
                                 + ($clubStats['battles'] ?? 0) + ($rankStats['battles'] ?? 0)
@@ -380,7 +388,7 @@ class PlayerShipService
                                     'ship_tier' => $shipTier,
                                     'distance' => $shipStats['distance'],
                                     'wn8' => $wn8,
-                                    'total_player_wn8' => 
+                                    'total_player_wn8' => $total_player_wn8,
                                     // PVE stats
                                     'pve_battles' => $pveStats['battles'] ?? 0,
                                     'pve_wins' => $pveStats['wins'] ?? 0,
