@@ -125,7 +125,7 @@ class PlayerShipService
 
     private function determineCategoryWN8($wn8)
     {
-        //simple if statement, if "value" eq "num" then return "xvalue"
+        //simple if statement, if "value" eq "num" then return "x->value"
         if ($wn8 == null) {
             return 'Null';
         }
@@ -163,44 +163,70 @@ class PlayerShipService
         ];
     }
 
-    public function getPlayerStatsByPeriod($period)
-    {
-        $query = PlayerShip::query();
 
-        // Define date ranges
+
+    protected $period_and_criteria = [
+        'last24hours' => ['battles' => 5, 'tier' => 1, 'date' => now()->subHours(24)],
+        'last7days' => ['battles' => 35, 'tier' => 2, 'date' => now()->subHours(24)],
+        'last25days' => ['battles' => 120, 'tier' => 3, 'date' => now()->subHours(24)],
+        'overall' => ['battles' => 5, 'tier' => 1, 'date' => null],
+
+    ];
+
+
+
+
+    public function getPlayerStatsByPeriod($playerId, $period)
+    {
+
         $dateRanges = [
             'last24hours' => now()->subHours(24),
             'last7days' => now()->subDays(7),
-            'lastMonth' => now()->subDays(30),
-            'overall' => null, // no filter
+            'lastMonth' => now()->subDays(25),
+            'overall' => null,
         ];
 
-        if (isset($dateRanges[$period]) && $period !== 'overall') {
+
+
+        if (!isset($dateRanges[$period])) {
+            throw new \InvalidArgumentException("Invalid period: $period");
+        }
+
+        $query = PlayerShip::where('account_id', $playerId);
+
+        if ($period !== 'overall') {
             $query->where('updated_at', '>=', $dateRanges[$period]);
         }
 
-        // Filter by tiers and battles as per requirements
-        $query->where('tier', '>', 5);
+        $stats = $query->get()->reduce(
+            function ($carry, $playerShip) {
+                $carry['battles'] += $playerShip->battles_played;
+                $carry['damage'] += $playerShip->damage_dealt;
+                $carry['wins'] += $playerShip->wins;
+                $carry['frags'] += $playerShip->frags;
+                $carry['wn8_player'] += $playerShip->total_player_wn8;
+                $carry['ship_name'] = $playerShip->ship_name;
+                $carry['sbip_wn8'] += $playerShip->wn8;
+                $carry['win_rate'] += $playerShip->battles_played / $playerShip->wins_count;
+            },
+            [
+                'battles' => 0,
+                'damage' => 0,
+                'wins' => 0,
+                'frags' => 0,
+                'wn8_player' => 0,
+                'ship_name' => 0,
+                'sbip_wn8' => 0,
+                'win_rate' => 0,
 
-        // Select top 10 players based on WN8
-        return $query->orderByDesc('wn8')->take(10)->get([
-            'account_id as wid',
-            'name',
-            'wn8',
-        ]);
-    }
-
-    public function getAllStatsByPeriod()
-    {
-        $stats = [
-            'topPlayersLast24Hours' => $this->getPlayerStatsByPeriod('last24hours'),
-            'topPlayersLastSevenDays' => $this->getPlayerStatsByPeriod('last7days'),
-            'topPlayersLastMonth' => $this->getPlayerStatsByPeriod('lastMonth'),
-            'topPlayersOverall' => $this->getPlayerStatsByPeriod('overall'),
-        ];
+            ]
+        );
 
         return $stats;
     }
+
+
+
 
     public function fetchAndStorePlayerShips()
     {

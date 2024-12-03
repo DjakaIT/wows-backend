@@ -156,32 +156,32 @@ Route::get('/player', function () {
             ]
         ],
         'playerVehicles' => [
-          [
-            'nation' => 'Germany',
-            'name' => 'Vehicle name',
-            'tier' => 2,
-            'battles' => 38,
-            'frags' => 34,
-            'damage' => 4.280,
-            'wins' => 67.46, // percentage
-            'wn8' => 1754,
-            'image' => 'image url', // ??? url ???
-            'description' => 'Vehicle description',
-            'wid' => 555
-          ],
-          [
-            'nation' => 'Japan',
-            'name' => 'Vehicle name',
-            'tier' => 4,
-            'battles' => 45,
-            'frags' => 32,
-            'damage' => 7.490,
-            'wins' => 36.46, // percentage
-            'wn8' => 980,
-            'image' => 'image url', // ??? url ???
-            'description' => 'Vehicle description',
-            'wid' => 555
-          ]
+            [
+                'nation' => 'Germany',
+                'name' => 'Vehicle name',
+                'tier' => 2,
+                'battles' => 38,
+                'frags' => 34,
+                'damage' => 4.280,
+                'wins' => 67.46, // percentage
+                'wn8' => 1754,
+                'image' => 'image url', // ??? url ???
+                'description' => 'Vehicle description',
+                'wid' => 555
+            ],
+            [
+                'nation' => 'Japan',
+                'name' => 'Vehicle name',
+                'tier' => 4,
+                'battles' => 45,
+                'frags' => 32,
+                'damage' => 7.490,
+                'wins' => 36.46, // percentage
+                'wn8' => 980,
+                'image' => 'image url', // ??? url ???
+                'description' => 'Vehicle description',
+                'wid' => 555
+            ]
         ],
     ]);
 });
@@ -266,6 +266,7 @@ Route::prefix('player-achievements')->group(function () {
 Route::prefix('player-ships')->group(function () {
 
     Route::get('/fetch', [PlayerShipController::class, 'updatePlayerShips']);
+    Route::get('/{id}/periodicplayerstats', [PlayerShipController::class, 'getPeriodicPlayerStats']);
     Route::get('/', [PlayerShipController::class, 'index']);
     Route::get('/{id}', [PlayerShipController::class, 'show']);
     Route::post('/', [PlayerShipController::class, 'store']);
